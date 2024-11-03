@@ -12,15 +12,14 @@ Advanced feature of color settings
 - HSL, HSV
 - RGB
 
+Next supports are planning: Lab, XYZ, ...
+
   
 # Known Color Lists
 - Basic Colors
 - Known Colors (like HTML, CSS, WinForms, WPF, etc ...)
 - RAL Colors
 - RAL DESIGN SYSTEM Plus
-
-Next supports are planning: Lab, XYZ, ...
-
 
 
 Further planning of expansions for
