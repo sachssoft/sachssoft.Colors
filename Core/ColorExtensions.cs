@@ -91,7 +91,10 @@ public static class ColorExtensions
         return upper_case ? hexValue.ToUpper() : hexValue.ToLower();
     }
 
-    public static Color FromHexToColor(this string hex, bool alpha = true)
+    public static Color FromHexToColor(this string hex)
+        => FromHexToColor(hex, false);
+
+    public static Color FromHexToColor(this string hex, bool alpha)
     {
         // Entferne das führende "#" falls vorhanden
         if (hex.StartsWith("#"))
