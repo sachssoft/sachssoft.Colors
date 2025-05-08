@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<TargetFramework>net6.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<OutputType>Library</OutputType>
+		<DefineConstants>DRAWING</DefineConstants>
+		<RootNamespace>sachssoft.Drawing.Colors</RootNamespace>
+		<AssemblyName>sachssoft.Drawing.Colors</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Include="..\Core\ColorComponent.cs" Link="ColorComponent.cs" />
+		<Compile Include="..\Core\ColorComponentFormats.cs" Link="ColorComponentFormats.cs" />
+		<Compile Include="..\Core\ColorComponentSwap.cs" Link="ColorComponentSwap.cs" />
+		<Compile Include="..\Core\ColorEnumerator.cs" Link="ColorEnumerator.cs" />
+		<Compile Include="..\Core\ColorExtensions.cs" Link="ColorExtensions.cs" />
+		<Compile Include="..\Core\ColorName.cs" Link="ColorName.cs" />
+		<Compile Include="..\Core\ColorRange.cs" Link="ColorRange.cs" />
+		<Compile Include="..\Core\ColorSpaces.cs" Link="ColorSpaces.cs" />
+		<Compile Include="..\Core\ColorTransformers.cs" Link="ColorTransformers.cs" />
+		<Compile Include="..\Core\ColorUtils.cs" Link="ColorUtils.cs" />
+		<Compile Include="..\Core\IColorBlender.cs" Link="IColorBlender.cs" />
+		<Compile Include="..\Core\IColorSpace.cs" Link="IColorSpace.cs" />
+		<Compile Include="..\Core\IColorTransformer.cs" Link="IColorTransformer.cs" />
+		<Compile Include="..\Core\List\BasicColors.cs" Link="List\BasicColors.cs" />
+		<Compile Include="..\Core\List\KnownColors.cs" Link="List\KnownColors.cs" />
+		<Compile Include="..\Core\List\RALColors.cs" Link="List\RALColors.cs" />
+		<Compile Include="..\Core\List\RALDSPColors.cs" Link="List\RALDSPColors.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Folder Include="List\" />
+	</ItemGroup>
+
+</Project>

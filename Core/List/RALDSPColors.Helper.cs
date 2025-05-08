@@ -1,6 +1,6 @@
 ﻿// © Tobias Sachs
-// Colors/RALDSPColors.Helper..cs
 // 22.01.2023
+// Updated 08.05.2025
 
 // ####################################
 // # Hilfscode zum Generieren         #
@@ -54,7 +54,7 @@
 //            var blue = w[len - 2];
 //            var context = code;
 
-//            lo += $@"public static ColorName {key} {{ get => new ColorName(""{name}"", new ColorCode({red}, {green}, {blue}), ""RAL {context}""); }}";
+//            lo += $@"public static ColorName {key} {{ get => new ColorName(""{name}"", ColorUtils.AdaptTo({red}, {green}, {blue}), ""RAL {context}""); }}";
 //            lo += "\n";
 //        }
 

@@ -1,12 +1,9 @@
-﻿/// © Tobias Sachs
-/// tcs_CoreVisuals
-/// Colors/ColorCode.cs
-/// 22.01.2023
+﻿#if !(SASOGINE || MONOGAME || AVALONIA || DRAWING || WPF || SKIA)
 
 using System;
 using System.Text.RegularExpressions;
 
-namespace tcs.Colors;
+namespace sachssoft.Colors;
 
 public struct ColorCode
 {
@@ -64,148 +61,6 @@ public struct ColorCode
     public ColorCode Opacity(byte value)
     {
         return ColorCode.Opacity(this, value);
-    }
-
-    public static ColorCode Darker(ColorCode base_color, ColorRange value)
-    {
-        var xmax = (double)ColorRange.MaxValue;
-        var x = (double)value.Value;
-        var s = 1.0 - (1.0 / xmax) * x;
-        var cr = base_color.Red * s;
-        var cg = base_color.Green * s;
-        var cb = base_color.Blue * s;
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Darker(ColorRange value)
-    {
-        return ColorCode.Darker(this, value);
-    }
-
-    public static ColorCode Lighter(ColorCode base_color, ColorRange value)
-    {
-        var xmax = (double)ColorRange.MaxValue;
-        var x = (double)value.Value;
-        var cr = base_color.Red + ((255 - base_color.Red) * (x / xmax));
-        var cg = base_color.Green + ((255 - base_color.Green) * (x / xmax));
-        var cb = base_color.Blue + ((255 - base_color.Blue) * (x / xmax));
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Lighter(ColorRange value)
-    {
-        return ColorCode.Lighter(this, value);
-    }
-
-    public static ColorCode Multiply(ColorCode base_color, ColorRange value)
-    {
-        var cr = (double)base_color.Red * value;
-        var cg = (double)base_color.Green * value;
-        var cb = (double)base_color.Blue * value;
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Multiply(ColorRange value)
-    {
-        return ColorCode.Multiply(this, value);
-    }
-
-    public static ColorCode Add(ColorCode base_color, ColorRange value)
-    {
-        var cr = Math.Min(base_color.Red + (value * 255.0), 255.0);
-        var cg = Math.Min(base_color.Green + (value * 255.0), 255.0);
-        var cb = Math.Min(base_color.Blue + (value * 255.0), 255.0);
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Add(ColorRange value)
-    {
-        return ColorCode.Add(this, value);
-    }
-
-    public static ColorCode Substract(ColorCode base_color, ColorRange value)
-    {
-        var cr = Math.Max(base_color.Red - (value * 255.0), 0.0);
-        var cg = Math.Max(base_color.Green - (value * 255.0), 0.0);
-        var cb = Math.Max(base_color.Blue - (value * 255.0), 0.0);
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Substract(ColorRange value)
-    {
-        return ColorCode.Substract(this, value);
-    }
-
-    public static ColorCode Difference(ColorCode base_color, ColorRange value)
-    {
-        var cr = Math.Abs(base_color.Red - (value * 255.0));
-        var cg = Math.Abs(base_color.Green - (value * 255.0));
-        var cb = Math.Abs(base_color.Blue - (value * 255.0));
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Difference(ColorRange value)
-    {
-        return ColorCode.Difference(this, value);
-    }
-
-    public static ColorCode And(ColorCode base_color, ColorRange value)
-    {
-        var cr = base_color.Red & (byte)(value * 255.0);
-        var cg = base_color.Green & (byte)(value * 255.0);
-        var cb = base_color.Blue & (byte)(value * 255.0);
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-    public ColorCode And(ColorRange value)
-    {
-        return ColorCode.And(this, value);
-    }
-
-    public static ColorCode Or(ColorCode base_color, ColorRange value)
-    {
-        var cr = base_color.Red | (byte)(value * 255.0);
-        var cg = base_color.Green | (byte)(value * 255.0);
-        var cb = base_color.Blue | (byte)(value * 255.0);
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-    public ColorCode Or(ColorRange value)
-    {
-        return ColorCode.Or(this, value);
-    }
-
-    public static ColorCode Xor(ColorCode base_color, ColorRange value)
-    {
-        var cr = base_color.Red ^ (byte)(value * 255.0);
-        var cg = base_color.Green ^ (byte)(value * 255.0);
-        var cb = base_color.Blue ^ (byte)(value * 255.0);
-
-        return new ColorCode(base_color.Alpha, (byte)cr, (byte)cg, (byte)cb);
-    }
-
-    public ColorCode Xor(ColorRange value)
-    {
-        return ColorCode.Xor(this, value);
-    }
-
-    public static ColorCode Invert(ColorCode base_color, ColorRange level)
-    {
-        return new ColorCode(base_color.Alpha,
-            (byte)(255.0 - (base_color.Red * (double)level.Value)),
-            (byte)(255.0 - (base_color.Green * (double)level.Value)),
-            (byte)(255.0 - (base_color.Blue * (double)level.Value)));
-    }
-
-    public ColorCode Invert(ColorRange value)
-    {
-        return ColorCode.Invert(this, value);
     }
 
     public static ColorCode Swap(ColorCode color, ColorComponentSwap swap)
@@ -374,3 +229,5 @@ public struct ColorCode
         throw new FormatException("Invalid hex code");
     }
 }
+
+#endif

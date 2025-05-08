@@ -1,10 +1,29 @@
-﻿/// © Tobias Sachs
-/// Colors/ColorComponent.cs
-/// 15.03.2024
-
+﻿using System;
 using System.Globalization;
 
-namespace tcs.Colors;
+#if SASOGINE
+using Microsoft.Xna.Framework;
+namespace sachssoft.Sasogine.Graphics.Colors;
+#elif MONOGAME
+using Microsoft.Xna.Framework;
+namespace sachssoft.Monogame.Colors;
+#elif AVALONIA
+using Ava = Avalonia;
+namespace sachssoft.Avalonia.Colors;
+using Color = Ava.Media.Color;
+#elif DRAWING
+namespace sachssoft.Drawing.Colors;
+using Color = System.Drawing.Color;
+#elif WPF
+namespace sachssoft.WPF.Colors;
+using Color = System.Windows.Media.Color;
+#elif SKIA
+namespace sachssoft.Skia.Colors;
+using Color = SkiaSharp.SKColor;
+#else
+namespace sachssoft.Colors;
+using Color = sachssoft.Colors.ColorCode;
+#endif
 
 public readonly struct ColorComponent
 {
@@ -25,69 +44,42 @@ public readonly struct ColorComponent
         _unit = unit;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public string Name
     {
         get => _name;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public string Abbreviation
     {
         get => _abbreviation;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public double Value
     {
         get => _value;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public string ValueFormat
     {
         get => _value_format;
     }
 
-    /// <summary>
-    /// 
     /// </summary>
     public ColorRange Level
     {
         get => _level;
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
     public string Unit
     {
         get => _unit;
     }
 
-    /// <summary>
-    /// /
-    /// </summary>
-    /// <param name="format"></param>
-    /// <returns></returns>
     public string ToString(ColorComponentFormats format)
     {
         return ToString(format, CultureInfo.CurrentCulture);
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <param name="format"></param>
-    /// <returns></returns>
     public string ToString(ColorComponentFormats format, CultureInfo culture)
     {
         switch (format)
@@ -101,10 +93,6 @@ public readonly struct ColorComponent
         }
     }
 
-    /// <summary>
-    /// 
-    /// </summary>
-    /// <returns></returns>
     public override string ToString()
     {
         return $"{Level.ToString(2)} [{Value} {Unit}]";
