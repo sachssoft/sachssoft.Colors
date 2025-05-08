@@ -472,6 +472,36 @@ public sealed class MultiplyColorTransformer : IColorTransformer
     }
 }
 
+public sealed class NormalizeColorTransformer : IColorTransformer
+{
+    public Color Transform(Color color, float amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+
+        // Normalisieren der Farbwerte von [0, 255] auf [0, 1]
+        float normalizedR = channels[0] / 255f;
+        float normalizedG = channels[1] / 255f;
+        float normalizedB = channels[2] / 255f;
+        float normalizedA = channels[3] / 255f;
+
+        // Wenn amount verwendet werden soll, um die Normalisierung zu beeinflussen, z.B. eine Art von Verstärkung oder Reduzierung:
+        normalizedR = Math.Clamp(normalizedR * amount, 0f, 1f);
+        normalizedG = Math.Clamp(normalizedG * amount, 0f, 1f);
+        normalizedB = Math.Clamp(normalizedB * amount, 0f, 1f);
+        normalizedA = Math.Clamp(normalizedA * amount, 0f, 1f);
+
+        // Umwandeln der normalisierten Farbwerte zurück in [0, 255]
+        byte r = (byte)(normalizedR * 255);
+        byte g = (byte)(normalizedG * 255);
+        byte b = (byte)(normalizedB * 255);
+        byte a = (byte)(normalizedA * 255);
+
+        // Rückgabe der normalisierten Farbe
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+}
+
+
 public sealed class PosterizeColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, float amount)

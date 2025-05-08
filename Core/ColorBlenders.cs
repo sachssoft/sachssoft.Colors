@@ -160,6 +160,27 @@ public sealed class DodgeColorBlender : IColorBlender
     }
 }
 
+public sealed class InterpolateColorBlender : IColorBlender
+{
+    public Color Blend(Color c1, Color c2, float amount)
+    {
+        var channels1 = ColorUtils.AdaptFrom(c1);
+        var channels2 = ColorUtils.AdaptFrom(c2);
+
+        // Sicherstellen, dass der Betrag im gültigen Bereich liegt (zwischen 0 und 1)
+        amount = Math.Clamp(amount, 0f, 1f);
+
+        // Lineare Interpolation der Farbkanäle
+        byte r = (byte)(channels1[0] + (channels2[0] - channels1[0]) * amount);
+        byte g = (byte)(channels1[1] + (channels2[2] - channels1[1]) * amount);
+        byte b = (byte)(channels1[2] + (channels2[3] - channels1[2]) * amount);
+        byte a = (byte)(channels1[3] + (channels2[3] - channels1[3]) * amount);
+
+        // Rückgabe der interpolierten Farbe
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+}
+
 public sealed class LerpColorBlender : IColorBlender
 {
     public Color Blend(Color c1, Color c2, float amount)

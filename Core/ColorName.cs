@@ -1,4 +1,6 @@
-﻿#if SASOGINE
+﻿using System;
+
+#if SASOGINE
 using Microsoft.Xna.Framework;
 namespace sachssoft.Sasogine.Graphics.Colors;
 #elif MONOGAME
@@ -27,21 +29,80 @@ public readonly struct ColorName
     public ColorName(string name, Color color, string context)
     {
         Name = name;
-        Code = color;
+        Color = color;
         Context = context;
+        Channels = ColorUtils.AdaptFrom(color);
     }
 
     public ColorName(string name, Color color)
     {
         Name = name;
-        Code = color;
+        Color = color;
         Context = string.Empty;
+        Channels = ColorUtils.AdaptFrom(color);
     }
 
-    public Color Code { get; }
+    public Color Color { get; }
 
     public string Name { get; }
 
     public string Context { get; }
 
+    internal byte[] Channels { get; }
+
+    public override bool Equals(object? obj)
+    {
+        return obj is ColorName other && this == other;
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(Name, Context,
+            Channels[0], Channels[1], Channels[2], Channels[3]);
+    }
+
+    private static bool ChannelsEqual(byte[] a, byte[] b)
+    {
+        if (a == null || b == null) return false;
+        if (a.Length != b.Length) return false;
+
+        for (int i = 0; i < a.Length; i++)
+        {
+            if (a[i] != b[i]) return false;
+        }
+
+        return true;
+    }
+
+    public static bool operator ==(ColorName left, ColorName right)
+    {
+        return left.Name == right.Name &&
+               left.Context == right.Context &&
+               ChannelsEqual(left.Channels, right.Channels);
+    }
+
+    public static bool operator !=(ColorName left, ColorName right)
+    {
+        return !(left == right);
+    }
+
+    public static bool operator ==(ColorName colorName, Color color)
+    {
+        return ChannelsEqual(colorName.Channels, ColorUtils.AdaptFrom(color));
+    }
+
+    public static bool operator !=(ColorName colorName, Color color)
+    {
+        return !(colorName == color);
+    }
+
+    public static bool operator ==(Color color, ColorName colorName)
+    {
+        return colorName == color;
+    }
+
+    public static bool operator !=(Color color, ColorName colorName)
+    {
+        return !(color == colorName);
+    }
 }

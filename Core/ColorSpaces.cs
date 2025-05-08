@@ -1415,6 +1415,65 @@ public struct RGB : IColorSpace
     }
 }
 
+public struct RGBW : IColorSpace
+{
+    public RGBW(ColorRange r, ColorRange g, ColorRange b, ColorRange w)
+    {
+        this.Red = r;
+        this.Green = g;
+        this.Blue = b;
+        this.White = w;
+    }
+
+    public ColorRange Red { get; set; }
+    public ColorRange Green { get; set; }
+    public ColorRange Blue { get; set; }
+    public ColorRange White { get; set; }
+
+    // Umrechnungen der Farbkomponenten, falls erforderlich
+    public double R => this.Red * 100.0;
+    public double G => this.Green * 100.0;
+    public double B => this.Blue * 100.0;
+    public double W => this.White * 100.0;
+
+    // Method to set values, in case of different inputs
+    public void SetValues(params ColorRange[] values)
+    {
+        if (values.Length == 4)
+        {
+            this.Red = values[0];
+            this.Green = values[1];
+            this.Blue = values[2];
+            this.White = values[3];
+        }
+    }
+
+    public int ComponentCount => 4;
+
+    // Konvertierungen zwischen RGBW und anderen Farbmodellen
+    public void ConvertFrom(Color color)
+    {
+        // Umrechnungslogik für die Umwandlung aus RGB oder einem anderen Modell
+    }
+
+    public Color ConvertTo()
+    {
+        // Logik zur Rückumwandlung in eine andere Farbe
+        return ColorUtils.AdaptTo((byte)(this.R), (byte)(this.G), (byte)(this.B), (byte)(255));
+    }
+
+    public ColorComponent[] GetComponents()
+    {
+        return new ColorComponent[]
+        {
+            new ColorComponent("Red", "R", this.R, 100.0, "0.0", "%"),
+            new ColorComponent("Green", "G", this.G, 100.0, "0.0", "%"),
+            new ColorComponent("Blue", "B", this.B, 100.0, "0.0", "%"),
+            new ColorComponent("White", "W", this.W, 100.0, "0.0", "%")
+        };
+    }
+}
+
 public struct YCbCr : IColorSpace
 {
     public ColorRange YComponent { get; set; }
@@ -1545,65 +1604,6 @@ public struct YUV : IColorSpace
             new ColorComponent("Luma", "Y", Y, 255.0, "0.0", ""),
             new ColorComponent("U (blue projection)", "U", U, 255.0, "0.0", ""),
             new ColorComponent("V (red projection)", "V", V, 255.0, "0.0", "")
-        };
-    }
-}
-
-public struct RGBW : IColorSpace
-{
-    public RGBW(ColorRange r, ColorRange g, ColorRange b, ColorRange w)
-    {
-        this.Red = r;
-        this.Green = g;
-        this.Blue = b;
-        this.White = w;
-    }
-
-    public ColorRange Red { get; set; }
-    public ColorRange Green { get; set; }
-    public ColorRange Blue { get; set; }
-    public ColorRange White { get; set; }
-
-    // Umrechnungen der Farbkomponenten, falls erforderlich
-    public double R => this.Red * 100.0;
-    public double G => this.Green * 100.0;
-    public double B => this.Blue * 100.0;
-    public double W => this.White * 100.0;
-
-    // Method to set values, in case of different inputs
-    public void SetValues(params ColorRange[] values)
-    {
-        if (values.Length == 4)
-        {
-            this.Red = values[0];
-            this.Green = values[1];
-            this.Blue = values[2];
-            this.White = values[3];
-        }
-    }
-
-    public int ComponentCount => 4;
-
-    // Konvertierungen zwischen RGBW und anderen Farbmodellen
-    public void ConvertFrom(Color color)
-    {
-        // Umrechnungslogik für die Umwandlung aus RGB oder einem anderen Modell
-    }
-
-    public Color ConvertTo()
-    {
-        // Logik zur Rückumwandlung in eine andere Farbe
-        return ColorUtils.AdaptTo((byte)(this.R), (byte)(this.G), (byte)(this.B), (byte)(255));
-    }
-
-    public ColorComponent[] GetComponents()
-    {
-        return new ColorComponent[]
-        {
-            new ColorComponent("Red", "R", this.R, 100.0, "0.0", "%"),
-            new ColorComponent("Green", "G", this.G, 100.0, "0.0", "%"),
-            new ColorComponent("Blue", "B", this.B, 100.0, "0.0", "%"),
-            new ColorComponent("White", "W", this.W, 100.0, "0.0", "%")
         };
     }
 }

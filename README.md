@@ -34,8 +34,8 @@ Further targets are planned for additional platform support.
 ## Features
 The tool offers a variety of powerful functions for performing color operations:
 
-- **28 Transformers**: Different functions for color manipulation, including adjustment, correction, and effect treatments.
-- **19 Blenders**: Allows blending colors in various ways to create new colors (e.g., linear blending, additive or subtractive).
+- **29 Transformers**: Different functions for color manipulation, including adjustment, correction, and effect treatments.
+- **20 Blenders**: Allows blending colors in various ways to create new colors (e.g., linear blending, additive or subtractive).
 - **22 Spaces**: Supports a large number of color models and spaces to allow versatile and flexible color handling.
 - **Extensions for Colors**: Extensions for advanced color applications that go beyond the standard functions.
 
@@ -65,3 +65,8 @@ The tool supports a wide range of color models and spaces, including:
 
 ## Notice
 This tool is continuously under development. Further features and improvements are planned to provide even more color management options. Errors and imperfections are not excluded, but the tool will be regularly updated to enhance accuracy and usability.
+
+## Requirements
+- .NET 6 or higher
+- Recommended starting from .NET 8
+- Platform-independent

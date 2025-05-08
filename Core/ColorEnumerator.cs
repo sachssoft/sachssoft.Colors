@@ -1,6 +1,6 @@
-﻿
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Reflection;
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
@@ -28,44 +28,38 @@ using Color = sachssoft.Colors.ColorCode;
 
 public abstract class ColorNameEnumerator
 {
-    protected ColorNameEnumerator() { }
+    internal protected ColorNameEnumerator() { }
 
     public static IEnumerable<ColorName> GetNames<T>() where T : ColorNameEnumerator
     {
-        var properties = typeof(T).GetProperties(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty);
-
+        var properties = typeof(T).GetProperties(BindingFlags.Static | BindingFlags.Public);
         foreach (var property in properties)
         {
-            if (property.CanRead == true && property.GetMethod != null)
+            if (property.CanRead &&
+                property.GetMethod?.ReturnType == typeof(ColorName))
             {
-                if (property.GetMethod.ReturnType == typeof(ColorName))
-                {
-                    yield return (ColorName)property.GetValue(null)!;
-                }
+                yield return (ColorName)property.GetValue(null)!;
             }
         }
     }
 
-    public static IEnumerable<ColorName> Find<T>(Func<ColorName, bool> filter) where T : ColorNameEnumerator
+    public static IEnumerable<ColorName> Find<T>(Color color) where T : ColorNameEnumerator
+        => Find<T>(n => n == color);
+
+    public static IEnumerable<ColorName> Find<T>(ColorName name) where T : ColorNameEnumerator
+        => Find<T>(n => n == name);
+
+    public static IEnumerable<ColorName> Find<T>(string name, StringComparison comparison = StringComparison.Ordinal) where T : ColorNameEnumerator
     {
-        _ = filter ?? throw new ArgumentNullException(nameof(filter));
+        return Find<T>(n => string.Equals(n.Name, name, comparison));
+    }
 
-        var properties = typeof(T).GetProperties(System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.GetProperty);
-
-        foreach (var property in properties)
+    public static IEnumerable<ColorName> Find<T>(Func<ColorName, bool> match) where T : ColorNameEnumerator
+    {
+        foreach (var name in GetNames<T>())
         {
-            if (property.CanRead == true && property.GetMethod != null)
-            {
-                if (property.GetMethod.ReturnType == typeof(ColorName))
-                {
-                    var name = (ColorName)property.GetValue(null)!;
-
-                    if (filter.Invoke(name) == false)
-                    {
-                        yield return name;
-                    }
-                }
-            }
+            if (match(name))
+                yield return name;
         }
     }
 }
