@@ -68,5 +68,5 @@ This tool is continuously under development. Further features and improvements a
 
 ## Requirements
 - .NET 6 or higher
-- .NET 8 or higher recommended
+- Recommended starting from .NET 8
 - Platform-independent
