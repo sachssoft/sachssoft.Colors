@@ -65,3 +65,8 @@ The tool supports a wide range of color models and spaces, including:
 
 ## Notice
 This tool is continuously under development. Further features and improvements are planned to provide even more color management options. Errors and imperfections are not excluded, but the tool will be regularly updated to enhance accuracy and usability.
+
+## Requirements
+- .NET 6 or higher
+- .NET 8 or higher recommended
+- Platform-independent
