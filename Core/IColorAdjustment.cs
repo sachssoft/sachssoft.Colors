@@ -22,17 +22,9 @@ namespace sachssoft.Colors;
 using Color = sachssoft.Colors.ColorCode;
 #endif
 
-public interface IColorSpace
+// Werte zwischen -1 und 1
+public interface IColorAdjustment
 {
-    Color ConvertTo();
+    Color Transform(Color color, float value);
 
-    void ConvertFrom(Color color);
-
-    ColorRange[] GetValues();
-
-    void SetValues(params ColorRange[] values);
-
-    int ComponentCount { get; }
-
-    ColorComponent[] GetComponents();
 }

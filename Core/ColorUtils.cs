@@ -84,20 +84,14 @@ internal static class ColorUtils
 
     public static byte Clamp(float value, float min = 0f, float max = 1f)
     {
-        // Clamp den Wert zwischen min und max
-        float clamped = Math.Min(max, Math.Max(min, value));
-
-        // Skaliere den Wert auf den Bereich [0, 255] und runde ihn
-        return (byte)Math.Round(clamped * 255.0f);
+        // Clamp den Wert zwischen min und max und skaliere ihn auf den Bereich [0, 255]
+        return (byte)Math.Round(Math.Min(max, Math.Max(min, value)) * 255f);
     }
 
     public static byte Clamp(double value, double min = 0.0, double max = 1.0)
     {
-        // Clamp den Wert zwischen min und max
-        double clamped = Math.Min(max, Math.Max(min, value));
-
-        // Skaliere den Wert auf den Bereich [0, 255] und runde ihn
-        return (byte)Math.Round(clamped * 255.0);
+        // Clamp den Wert zwischen min und max und skaliere ihn auf den Bereich [0, 255]
+        return (byte)Math.Round(Math.Min(max, Math.Max(min, value)) * 255.0);
     }
 
     public static float[] AdaptToSingleFrom(Color color, bool alpha = false)

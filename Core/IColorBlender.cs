@@ -24,6 +24,6 @@ using Color = sachssoft.Colors.ColorCode;
 
 public interface IColorBlender
 {
-    Color Blend(Color color1, Color color2, float amount);
+    Color Blend(Color color1, Color color2, ColorRange amount);
 
 }

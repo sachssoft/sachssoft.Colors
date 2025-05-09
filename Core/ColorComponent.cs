@@ -44,6 +44,16 @@ public readonly struct ColorComponent
         _unit = unit;
     }
 
+    public ColorComponent(string name, string abbreviation, float value, float max_value, string value_format, string unit)
+    {
+        _name = name;
+        _abbreviation = abbreviation;
+        _value = value;
+        _value_format = value_format;
+        _level = new ColorRange(value, max_value);
+        _unit = unit;
+    }
+
     public string Name
     {
         get => _name;
@@ -64,7 +74,6 @@ public readonly struct ColorComponent
         get => _value_format;
     }
 
-    /// </summary>
     public ColorRange Level
     {
         get => _level;

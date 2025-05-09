@@ -106,7 +106,7 @@ public sealed partial class RALDSPColors : ColorNameEnumerator
     public static ColorName FleshPink { get => new("FleshPink", ColorUtils.AdaptTo(249, 203, 211), "RAL H010L85C20"); }
     public static ColorName RoseCream { get => new("RoseCream", ColorUtils.AdaptTo(239, 224, 222), "RAL H010L90C05"); }
     public static ColorName LightApricot { get => new("LightApricot", ColorUtils.AdaptTo(242, 218, 214), "RAL H010L90C10"); }
-    public static ColorName WhiteRed { get => new("White-Red", ColorUtils.AdaptTo(243, 232, 234), "RAL H010L93C05"); }
+    public static ColorName WhiteRed { get => new("WhiteComponent-RedComponent", ColorUtils.AdaptTo(243, 232, 234), "RAL H010L93C05"); }
     public static ColorName DeepBrown { get => new("DeepBrown", ColorUtils.AdaptTo(52, 42, 42), "RAL H020L20C05"); }
     public static ColorName NightRed { get => new("NightRed", ColorUtils.AdaptTo(60, 39, 39), "RAL H020L20C10"); }
     public static ColorName DarkRedBrown { get => new("DarkRedBrown", ColorUtils.AdaptTo(74, 33, 37), "RAL H020L20C20"); }
@@ -1057,7 +1057,7 @@ public sealed partial class RALDSPColors : ColorNameEnumerator
     public static ColorName BalticGreen { get => new("BalticGreen", ColorUtils.AdaptTo(58, 160, 152), "RAL H190L60C30"); }
     public static ColorName CeramicBlueTurquoise { get => new("CeramicBlueTurquoise", ColorUtils.AdaptTo(22, 162, 154), "RAL H190L60C35"); }
     public static ColorName BalticTurquoise { get => new("BalticTurquoise", ColorUtils.AdaptTo(0, 164, 154), "RAL H190L60C40"); }
-    public static ColorName TyroliteBlueGreen { get => new("TyroliteBlue-Green", ColorUtils.AdaptTo(0, 164, 153), "RAL H190L60C45"); }
+    public static ColorName TyroliteBlueGreen { get => new("TyroliteBlue-GreenComponent", ColorUtils.AdaptTo(0, 164, 153), "RAL H190L60C45"); }
     public static ColorName MarbleGreen { get => new("MarbleGreen", ColorUtils.AdaptTo(149, 176, 173), "RAL H190L70C10"); }
     public static ColorName JadeGreen { get => new("JadeGreen", ColorUtils.AdaptTo(137, 179, 173), "RAL H190L70C15"); }
     public static ColorName SpringWaterTurquoise { get => new("SpringWaterTurquoise", ColorUtils.AdaptTo(122, 181, 174), "RAL H190L70C20"); }
@@ -1354,7 +1354,7 @@ public sealed partial class RALDSPColors : ColorNameEnumerator
     public static ColorName WashingPowderSoftBlue { get => new("WashingPowderSoftBlue", ColorUtils.AdaptTo(195, 216, 228), "RAL H250L85C10"); }
     public static ColorName DiamondSoftBlue { get => new("DiamondSoftBlue", ColorUtils.AdaptTo(188, 218, 236), "RAL H250L85C15"); }
     public static ColorName IceWhite { get => new("IceWhite", ColorUtils.AdaptTo(218, 227, 231), "RAL H250L90C05"); }
-    public static ColorName BlueBlack { get => new("Blue-Black", ColorUtils.AdaptTo(36, 49, 61), "RAL H260L20C05"); }
+    public static ColorName BlueBlack { get => new("BlueComponent-Black", ColorUtils.AdaptTo(36, 49, 61), "RAL H260L20C05"); }
     public static ColorName NatoBlue { get => new("NatoBlue", ColorUtils.AdaptTo(21, 48, 67), "RAL H260L20C10"); }
     public static ColorName SuitBlue { get => new("SuitBlue", ColorUtils.AdaptTo(43, 48, 54), "RAL H260L20C15"); }
     public static ColorName HaliteBlue { get => new("HaliteBlue", ColorUtils.AdaptTo(9, 50, 74), "RAL H260L20C20"); }

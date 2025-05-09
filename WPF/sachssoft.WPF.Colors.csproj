@@ -11,6 +11,7 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+		<Compile Include="..\Core\ColorBlenders.cs" Link="ColorBlenders.cs" />
 		<Compile Include="..\Core\ColorComponent.cs" Link="ColorComponent.cs" />
 		<Compile Include="..\Core\ColorComponentFormats.cs" Link="ColorComponentFormats.cs" />
 		<Compile Include="..\Core\ColorComponentSwap.cs" Link="ColorComponentSwap.cs" />
@@ -19,6 +20,7 @@
 		<Compile Include="..\Core\ColorName.cs" Link="ColorName.cs" />
 		<Compile Include="..\Core\ColorRange.cs" Link="ColorRange.cs" />
 		<Compile Include="..\Core\ColorSpaces.cs" Link="ColorSpaces.cs" />
+		<Compile Include="..\Core\ColorTransformerFactory.cs" Link="ColorTransformerFactory.cs" />
 		<Compile Include="..\Core\ColorTransformers.cs" Link="ColorTransformers.cs" />
 		<Compile Include="..\Core\ColorUtils.cs" Link="ColorUtils.cs" />
 		<Compile Include="..\Core\IColorBlender.cs" Link="IColorBlender.cs" />

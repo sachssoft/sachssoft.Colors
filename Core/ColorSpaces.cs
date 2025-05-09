@@ -41,6 +41,11 @@ public struct ACEScg : IColorSpace
     public double G => GreenComponent * 100.0;
     public double B => BlueComponent * 100.0;
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] { RedComponent, GreenComponent, BlueComponent };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length > 0) RedComponent = values[0];
@@ -84,9 +89,9 @@ public struct ACEScg : IColorSpace
     {
         return new[]
         {
-            new ColorComponent("Red", "R", R, 100.0, "0.0", "%"),
-            new ColorComponent("Green", "G", G, 100.0, "0.0", "%"),
-            new ColorComponent("Blue", "B", B, 100.0, "0.0", "%")
+            new ColorComponent("RedComponent", "R", R, 100.0, "0.0", "%"),
+            new ColorComponent("GreenComponent", "G", G, 100.0, "0.0", "%"),
+            new ColorComponent("BlueComponent", "B", B, 100.0, "0.0", "%")
         };
     }
 }
@@ -117,6 +122,11 @@ public struct CMY : IColorSpace
     public byte Yellow => Convert.ToByte(YellowComponent * 255.0);
 
     public byte Y => Yellow;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] { CyanComponent, MagentaComponent, YellowComponent };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -199,6 +209,11 @@ public struct CMYK : IColorSpace
 
     public double Black => BlackComponent * 100.0;
     public double K => Black;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] { CyanComponent, MagentaComponent, YellowComponent, BlackComponent };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -309,6 +324,15 @@ public struct HCL : IColorSpace
     public double C => ChromaComponent * 100.0;
     public double L => LuminanceComponent * 100.0;
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            HueComponent,
+            ChromaComponent,
+            LuminanceComponent
+        };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length > 0) HueComponent = values[0];
@@ -338,7 +362,7 @@ public struct HCL : IColorSpace
         {
             new ColorComponent("Hue", "H", H, 360.0, "0.0", "°"),
             new ColorComponent("Chroma", "C", C, 100.0, "0.0", "%"),
-            new ColorComponent("Luminance", "L", L, 100.0, "0.0", "%")
+            new ColorComponent("LuminanceComponent", "L", L, 100.0, "0.0", "%")
         };
     }
 }
@@ -359,6 +383,15 @@ public struct HSI : IColorSpace
     public double H => HueComponent * 360.0;
     public double S => SaturationComponent * 100.0;
     public double I => IntensityComponent * 255.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            HueComponent,
+            SaturationComponent,
+            IntensityComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -478,6 +511,15 @@ public struct HSL : IColorSpace
     public double L => Lightness;
 
     public int ComponentCount => 3;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            HueComponent,
+            SaturationComponent,
+            LightnessComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -633,6 +675,15 @@ public struct HSV : IColorSpace
 
     public int ComponentCount => 3;
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            HueComponent,
+            SaturationComponent,
+            ValueComponent
+        };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length == 1)
@@ -778,6 +829,15 @@ public struct HWB : IColorSpace
     public double W => this.Whiteness;
     public double B => this.Blackness;
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            HueComponent,
+            WhiteComponent,
+            BlackComponent
+        };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length > 0) this.HueComponent = values[0];
@@ -854,6 +914,15 @@ public struct ICtCp : IColorSpace
     public double I => IComponent * 100.0;
     public double Ct => CtComponent * 100.0;
     public double Cp => CpComponent * 100.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            IComponent,
+            CtComponent,
+            CpComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -956,6 +1025,15 @@ public struct IPT : IColorSpace
     public double I => IntensityComponent * 100.0;
     public double P => ProtanComponent * 100.0;
     public double T => TritanComponent * 100.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            IntensityComponent,
+            ProtanComponent,
+            TritanComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -1085,6 +1163,12 @@ public struct Lab : IColorSpace
 
     public int ComponentCount => 3;
 
+    public ColorRange[] GetValues()
+    {
+        // Muss nachbessern
+        throw new NotSupportedException();
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length >= 1) L = values[0] * 100.0;
@@ -1097,8 +1181,8 @@ public struct Lab : IColorSpace
         return new[]
         {
             new ColorComponent("Lightness", "L", L, 100.0, "0.0", ""),
-            new ColorComponent("Green–Red", "a", A, 255.0, "-128", ""),
-            new ColorComponent("Blue–Yellow", "b", B, 255.0, "-128", "")
+            new ColorComponent("GreenComponent–RedComponent", "a", A, 255.0, "-128", ""),
+            new ColorComponent("BlueComponent–Yellow", "b", B, 255.0, "-128", "")
         };
     }
 
@@ -1238,6 +1322,15 @@ public struct OKLab : IColorSpace
     public double A => AComponent * 100.0;
     public double B => BComponent * 100.0;
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            LComponent,
+            AComponent,
+            BComponent
+        };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length > 0) LComponent = values[0];
@@ -1301,8 +1394,8 @@ public struct OKLab : IColorSpace
         return new[]
         {
             new ColorComponent("Lightness", "L", L, 100.0, "0.0", ""),
-            new ColorComponent("Green-Red", "A", A, 100.0, "0.0", ""),
-            new ColorComponent("Blue-Yellow", "B", B, 100.0, "0.0", "")
+            new ColorComponent("GreenComponent-RedComponent", "A", A, 100.0, "0.0", ""),
+            new ColorComponent("BlueComponent-Yellow", "B", B, 100.0, "0.0", "")
         };
     }
 }
@@ -1362,6 +1455,15 @@ public struct RGB : IColorSpace
         get => 3;
     }
 
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            RedComponent,
+            GreenComponent,
+            BlueComponent
+        };
+    }
+
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length == 1)
@@ -1403,9 +1505,9 @@ public struct RGB : IColorSpace
     {
         return new ColorComponent[]
         {
-            new ColorComponent("Red", "R", Red,  byte.MaxValue, "0", ""),
-            new ColorComponent("Green", "G", Green,  byte.MaxValue, "0", ""),
-            new ColorComponent("Blue", "B", Blue, byte.MaxValue, "0", "")
+            new ColorComponent("RedComponent", "R", Red,  byte.MaxValue, "0", ""),
+            new ColorComponent("GreenComponent", "G", Green,  byte.MaxValue, "0", ""),
+            new ColorComponent("BlueComponent", "B", Blue, byte.MaxValue, "0", "")
         };
     }
 
@@ -1419,32 +1521,42 @@ public struct RGBW : IColorSpace
 {
     public RGBW(ColorRange r, ColorRange g, ColorRange b, ColorRange w)
     {
-        this.Red = r;
-        this.Green = g;
-        this.Blue = b;
-        this.White = w;
+        this.RedComponent = r;
+        this.GreenComponent = g;
+        this.BlueComponent = b;
+        this.WhiteComponent = w;
     }
 
-    public ColorRange Red { get; set; }
-    public ColorRange Green { get; set; }
-    public ColorRange Blue { get; set; }
-    public ColorRange White { get; set; }
+    public ColorRange RedComponent { get; set; }
+    public ColorRange GreenComponent { get; set; }
+    public ColorRange BlueComponent { get; set; }
+    public ColorRange WhiteComponent { get; set; }
 
     // Umrechnungen der Farbkomponenten, falls erforderlich
-    public double R => this.Red * 100.0;
-    public double G => this.Green * 100.0;
-    public double B => this.Blue * 100.0;
-    public double W => this.White * 100.0;
+    public double R => this.RedComponent * 100.0;
+    public double G => this.GreenComponent * 100.0;
+    public double B => this.BlueComponent * 100.0;
+    public double W => this.WhiteComponent * 100.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            RedComponent,
+            GreenComponent,
+            BlueComponent,
+            WhiteComponent
+        };
+    }
 
     // Method to set values, in case of different inputs
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length == 4)
         {
-            this.Red = values[0];
-            this.Green = values[1];
-            this.Blue = values[2];
-            this.White = values[3];
+            this.RedComponent = values[0];
+            this.GreenComponent = values[1];
+            this.BlueComponent = values[2];
+            this.WhiteComponent = values[3];
         }
     }
 
@@ -1466,10 +1578,10 @@ public struct RGBW : IColorSpace
     {
         return new ColorComponent[]
         {
-            new ColorComponent("Red", "R", this.R, 100.0, "0.0", "%"),
-            new ColorComponent("Green", "G", this.G, 100.0, "0.0", "%"),
-            new ColorComponent("Blue", "B", this.B, 100.0, "0.0", "%"),
-            new ColorComponent("White", "W", this.W, 100.0, "0.0", "%")
+            new ColorComponent("RedComponent", "R", this.R, 100.0, "0.0", "%"),
+            new ColorComponent("GreenComponent", "G", this.G, 100.0, "0.0", "%"),
+            new ColorComponent("BlueComponent", "B", this.B, 100.0, "0.0", "%"),
+            new ColorComponent("WhiteComponent", "W", this.W, 100.0, "0.0", "%")
         };
     }
 }
@@ -1490,6 +1602,15 @@ public struct YCbCr : IColorSpace
     public double Y => YComponent * 255.0;
     public double Cb => CbComponent * 255.0;
     public double Cr => CrComponent * 255.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            YComponent,
+            CbComponent,
+            CrComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -1535,8 +1656,8 @@ public struct YCbCr : IColorSpace
         return new[]
         {
             new ColorComponent("Luma", "Y", Y, 255.0, "0.0", ""),
-            new ColorComponent("Blue-diff", "Cb", Cb, 255.0, "0.0", ""),
-            new ColorComponent("Red-diff", "Cr", Cr, 255.0, "0.0", "")
+            new ColorComponent("BlueComponent-diff", "Cb", Cb, 255.0, "0.0", ""),
+            new ColorComponent("RedComponent-diff", "Cr", Cr, 255.0, "0.0", "")
         };
     }
 }
@@ -1557,6 +1678,15 @@ public struct YUV : IColorSpace
     public double Y => YComponent * 255.0;
     public double U => UComponent * 255.0;
     public double V => VComponent * 255.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            YComponent,
+            UComponent,
+            VComponent
+        };
+    }
 
     public void SetValues(params ColorRange[] values)
     {
@@ -1612,31 +1742,41 @@ public struct TCS : IColorSpace
 {
     public TCS(ColorRange red, ColorRange green, ColorRange blue, ColorRange luminance)
     {
-        this.Red = red;
-        this.Green = green;
-        this.Blue = blue;
-        this.Luminance = luminance;
+        this.RedComponent = red;
+        this.GreenComponent = green;
+        this.BlueComponent = blue;
+        this.LuminanceComponent = luminance;
     }
 
-    public ColorRange Red { get; set; }
-    public ColorRange Green { get; set; }
-    public ColorRange Blue { get; set; }
-    public ColorRange Luminance { get; set; }
+    public ColorRange RedComponent { get; set; }
+    public ColorRange GreenComponent { get; set; }
+    public ColorRange BlueComponent { get; set; }
+    public ColorRange LuminanceComponent { get; set; }
 
-    public double R => this.Red * 100.0;
-    public double G => this.Green * 100.0;
-    public double B => this.Blue * 100.0;
-    public double L => this.Luminance * 100.0;
+    public double R => this.RedComponent * 100.0;
+    public double G => this.GreenComponent * 100.0;
+    public double B => this.BlueComponent * 100.0;
+    public double L => this.LuminanceComponent * 100.0;
+
+    public ColorRange[] GetValues()
+    {
+        return new ColorRange[] {
+            RedComponent,
+            GreenComponent,
+            BlueComponent,
+            LuminanceComponent
+        };
+    }
 
     // Method to set values
     public void SetValues(params ColorRange[] values)
     {
         if (values.Length == 4)
         {
-            this.Red = values[0];
-            this.Green = values[1];
-            this.Blue = values[2];
-            this.Luminance = values[3];
+            this.RedComponent = values[0];
+            this.GreenComponent = values[1];
+            this.BlueComponent = values[2];
+            this.LuminanceComponent = values[3];
         }
     }
 
@@ -1660,10 +1800,10 @@ public struct TCS : IColorSpace
     {
         return new ColorComponent[]
         {
-            new ColorComponent("Red", "R", this.R, 100.0, "0.0", "%"),
-            new ColorComponent("Green", "G", this.G, 100.0, "0.0", "%"),
-            new ColorComponent("Blue", "B", this.B, 100.0, "0.0", "%"),
-            new ColorComponent("Luminance", "L", this.L, 100.0, "0.0", "%")
+            new ColorComponent("RedComponent", "R", this.R, 100.0, "0.0", "%"),
+            new ColorComponent("GreenComponent", "G", this.G, 100.0, "0.0", "%"),
+            new ColorComponent("BlueComponent", "B", this.B, 100.0, "0.0", "%"),
+            new ColorComponent("LuminanceComponent", "L", this.L, 100.0, "0.0", "%")
         };
     }
 }
@@ -1682,6 +1822,12 @@ public struct XYZ : IColorSpace
     public double Z { get; set; }
 
     public int ComponentCount => 3;
+
+    public ColorRange[] GetValues()
+    {
+        // Nachbessern...
+        throw new NotImplementedException();
+    }
 
     public void SetValues(params ColorRange[] values)
     {

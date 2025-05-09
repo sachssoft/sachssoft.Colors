@@ -34,9 +34,9 @@ Further targets are planned for additional platform support.
 ## Features
 The tool offers a variety of powerful functions for performing color operations:
 
-- **29 Transformers**: Different functions for color manipulation, including adjustment, correction, and effect treatments.
-- **20 Blenders**: Allows blending colors in various ways to create new colors (e.g., linear blending, additive or subtractive).
-- **22 Spaces**: Supports a large number of color models and spaces to allow versatile and flexible color handling.
+- **Over 20 Transformers**: Different functions for color manipulation, including adjustment, correction, and effect treatments.
+- **Over 20 Blenders**: Allows blending colors in various ways to create new colors (e.g., linear blending, additive or subtractive).
+- **Over 20 Spaces**: Supports a large number of color models and spaces to allow versatile and flexible color handling.
 - **Extensions for Colors**: Extensions for advanced color applications that go beyond the standard functions.
 
 ## Supported Color Spaces/Models

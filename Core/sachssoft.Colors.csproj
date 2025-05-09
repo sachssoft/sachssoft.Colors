@@ -7,6 +7,16 @@
 		<AssemblyName>sachssoft.Colors</AssemblyName>
 		<OutputType>Library</OutputType>
 		<PackageId>sachssoft.Colors</PackageId>
+		
+		<Description>.NET library for color blending, transformations, and image manipulation – designed by Tobias Sachs. Includes blend modes, filters, and utilities for creative use.</Description>
+		<Authors>Tobias Sachs</Authors>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageProjectUrl>https://github.com/sachssoft/sachssoft.Colors</PackageProjectUrl>
+		<!-- Optional, wenn du später GitHub nutzt -->
+		<RepositoryUrl>https://github.com/sachssoft/sachssoft.Colors</RepositoryUrl>
+		<!-- Optional -->
+		<PackageTags>color;blend;transform;filter;rgb;hsv;manipulation;graphics;sachssoft;dotnet;library</PackageTags>
+
 	</PropertyGroup>
 
 </Project>

@@ -29,25 +29,45 @@ using Color = sachssoft.Colors.ColorCode;
 public static class ColorExtensions
 {
 
-    public static Color Adjust<T>(this Color color, float amount) where T : IColorTransformer, new()
+    public static Color Adjust<T>(this Color color, ColorRange amount) where T : IColorTransformer, new()
     {
         var transformer = new T();
         return transformer.Transform(color, amount);
     }
 
-    public static Color Adjust<T>(this Color color, float amount, float factor) where T : IFactorColorTransformer, new()
+    public static Color Adjust<T>(this Color color, ColorRange amount, float factor) where T : IFactorColorTransformer, new()
     {
         var transformer = new T();
         return transformer.Transform(color, amount);
     }
 
-    public static Color Blend<T>(this Color color, Color other, float amount) where T : IColorBlender, new()
+    public static Color Adjust(this Color color, ColorRange amount, IColorTransformer transformer)
+    {
+        return transformer.Transform(color, amount);
+    }
+
+    public static Color Adjust(this Color color, ColorRange amount, float factor, IFactorColorTransformer transformer)
+    {
+        return transformer.Transform(color, amount, factor);
+    }
+
+    public static Color Blend<T>(this Color color, Color other, ColorRange amount) where T : IColorBlender, new()
     {
         var blender = new T();
         return blender.Blend(color, other, amount);
     }
 
+    public static Color Blend(this Color color, Color other, ColorRange amount, IColorBlender blender)
+    {
+        return blender.Blend(color, other, amount);
+    }
+
     public static Color FromSpace<T>(this T space) where T : struct, IColorSpace
+    {
+        return space.ConvertTo();
+    }
+
+    public static Color FromSpace(this IColorSpace space)
     {
         return space.ConvertTo();
     }
@@ -57,6 +77,25 @@ public static class ColorExtensions
         var space = new T();
         space.ConvertFrom(color);
         return space;
+    }
+
+    // Not For AOT!
+    public static IColorSpace ToSpace(this Color color, Type space_type)
+    {
+        if (space_type.IsAssignableTo(typeof(IColorSpace)) && !space_type.IsAbstract)
+        {
+            var output = Activator.CreateInstance(space_type) as IColorSpace;
+
+            if (output == null)
+            {
+                throw new InvalidOperationException($"Could not create an instance of type '{space_type.Name}'.");
+            }
+
+            output.ConvertFrom(color);
+            return output;
+        }
+
+        throw new InvalidOperationException($"The provided type '{space_type.Name}' is not a valid IColorSpace.");
     }
 
     public static TOutput Transform<TInput, TOutput>(this TInput space) where TInput : struct, IColorSpace where TOutput : struct, IColorSpace

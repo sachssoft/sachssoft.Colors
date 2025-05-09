@@ -24,52 +24,41 @@ namespace sachssoft.Colors.Transformers;
 using Color = sachssoft.Colors.ColorCode;
 #endif
 
-public sealed class AdditiveColorTransformer : IColorTransformer
+// OK
+public sealed class OpacityColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    // 0 = Normal
+    // 1 = Transparent
+
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        byte Add(byte channel)
-        {
-            return ColorUtils.Clamp(channel + amount * 255f, 0, 255); // Amount beeinflusst den Wert
-        }
+        // Berechne den Alpha-Wert, indem du amount von 0 bis 1 skalierst und auf 255 umrechnest.
+        byte alpha = (byte)(255f * (1f - (float)amount));
 
-        return ColorUtils.AdaptTo(
-            Add(channels[0]),
-            Add(channels[1]),
-            Add(channels[2]),
-            channels[3]
-        );
-    }
-}
-
-public sealed class AlphaColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        // amount ∈ [0, 1] → direkte Festlegung des Alpha-Werts
         return ColorUtils.AdaptTo(
             channels[0],
             channels[1],
             channels[2],
-            (byte)(amount * 255f)
+            alpha
         );
     }
 }
 
-public sealed class BrightColorTransformer : IColorTransformer
+
+// OK
+public sealed class BrightColorTransformer : IColorTransformer /*, IColorChannelTransformer*/
 {
-    public Color Transform(Color color, float amount)
+    // 0 = Normal
+    // 1 = Hell
+
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // amount ∈ [0, 1] → 0 = schwarz, 1 = unverändert
-        amount = Math.Clamp(amount, 0f, 1f);
-
-        byte Adjust(byte c) => (byte)(c * amount);
+        // Aufhellung: Interpolation von Originalwert zu 255 (Weiß)
+        byte Adjust(byte c) => (byte)(c + (255f - c) * (float)amount);
 
         return ColorUtils.AdaptTo(
             Adjust(channels[0]),
@@ -78,89 +67,124 @@ public sealed class BrightColorTransformer : IColorTransformer
             channels[3]
         );
     }
+
+    //public Color Transform<T>(Color color, T channel_amount) where T : struct, IColorSpace
+    //{
+    //    var space = color.ToSpace<T>();
+    //    var output = new T();
+
+    //    var count = output.ComponentCount;
+    //    var values = output.GetValues();
+
+    //    for (var i = 0; i < count; i++)
+    //    {
+
+    //    }
+    //}
 }
 
-public sealed class ChannelSwapColorTransformer : IColorTransformer
+// OK
+public sealed class SwapRedBlueColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    // Vertauscht Rot und Blau abhängig vom 'amount'
+    // 0 = Originalfarbe, 1 = R und B getauscht
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Rot mit Blau vertauschen
-        byte swapped_red = channels[2]; // B
-        byte swapped_green = channels[1]; // G
-        byte swapped_blue = channels[0]; // R
+        byte r = channels[0]; // Original Rot
+        byte g = channels[1]; // Original Grün
+        byte b = channels[2]; // Original Blau
+        byte a = channels[3]; // Alpha
 
-        return ColorUtils.AdaptTo(
-            (byte)(swapped_red * amount + channels[0] * (1f - amount)),
-            (byte)(swapped_green * amount + channels[1] * (1f - amount)),
-            (byte)(swapped_blue * amount + channels[2] * (1f - amount)),
-            channels[3]
-        );
+        // Swap R und B: Interpolation
+        byte new_r = (byte)(b * (float)amount + r * (1f - (float)amount));
+        byte new_b = (byte)(r * (float)amount + b * (1f - (float)amount));
+
+        // Grün bleibt gleich, wird aber ebenfalls interpoliert, falls gewünscht
+        byte new_g = (byte)(g * (float)amount + g * (1f - (float)amount)); // vereinfacht: g
+
+        return ColorUtils.AdaptTo(new_r, new_g, new_b, a);
     }
 }
 
-public sealed class ChromaticAberrationColorTransformer : IFactorColorTransformer
+// OK
+public sealed class SwapRedGreenColorTransformer : IColorTransformer
 {
-    public float FactorMinimum => 0.0f; // Keine chromatische Aberration
-    public float FactorMaximum => 1.0f; // Maximale chromatische Aberration
+    // 0 = Originalfarbe, 1 = Rot und Grün vertauscht
 
-    public Color Transform(Color color, float amount, float factor)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Beschränkung des Faktorenbereichs
-        factor = Math.Clamp(factor, FactorMinimum, FactorMaximum);
+        byte r = channels[0]; // Original Rot
+        byte g = channels[1]; // Original Grün
+        byte b = channels[2]; // Original Blau
+        byte a = channels[3]; // Alpha
 
-        // Chromatische Aberration - Verschiebung von Farben je nach Amount
-        byte ApplyChromaticAberration(byte channel, float amount, float factor)
-        {
-            return ColorUtils.Clamp(channel + (channel * factor * amount), 0, 255);
-        }
+        // Interpolation: Rot und Grün vertauschen
+        byte new_r = (byte)(r * (1f - (float)amount) + g * (float)amount);
+        byte new_g = (byte)(g * (1f - (float)amount) + r * (float)amount);
 
-        // Verschiebe Farben je nach Aberration
-        return ColorUtils.AdaptTo(
-            ApplyChromaticAberration(channels[0], amount, factor),
-            ApplyChromaticAberration(channels[1], amount, factor),
-            ApplyChromaticAberration(channels[2], amount, factor),
-            channels[3]
-        );
-    }
-
-    public Color Transform(Color color, float amount)
-    {
-        return Transform(color, amount, 0.3f); // Standardwert für chromatische Aberration
+        // Blau bleibt unverändert
+        return ColorUtils.AdaptTo(new_r, new_g, b, a);
     }
 }
 
-public sealed class ColorBalanceColorTransformer : IColorTransformer
+// OK
+public sealed class SwapGreenBlueColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    // 0 = Originalfarbe, 1 = Grün und Blau vertauscht
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        byte AdjustBalance(byte channel, float amount)
-        {
-            return ColorUtils.Clamp(channel + (channel - 128) * amount, 0, 255);
-        }
+        byte r = channels[0]; // Original Rot
+        byte g = channels[1]; // Original Grün
+        byte b = channels[2]; // Original Blau
+        byte a = channels[3]; // Alpha
 
-        return ColorUtils.AdaptTo(
-            AdjustBalance(channels[0], amount),
-            AdjustBalance(channels[1], amount),
-            AdjustBalance(channels[2], amount),
-            channels[3]
-        );
+        // Interpolation: Grün und Blau vertauschen
+        byte new_g = (byte)(g * (1f - (float)amount) + b * (float)amount);
+        byte new_b = (byte)(b * (1f - (float)amount) + g * (float)amount);
+
+        // Rot bleibt unverändert
+        return ColorUtils.AdaptTo(r, new_g, new_b, a);
     }
 }
+
+// OK
+public sealed class RotateChannelsTransformer : IColorTransformer
+{
+    // 0 = Originalfarbe, 1 = R → G → B → R (Rotation der Kanäle)
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+
+        byte r = channels[0]; // Original Rot
+        byte g = channels[1]; // Original Grün
+        byte b = channels[2]; // Original Blau
+        byte a = channels[3]; // Alpha
+
+        // Berechne den rotierenden Offset basierend auf 'amount'
+        byte new_r = (byte)(r * (1f - (float)amount) + g * (float)amount);
+        byte new_g = (byte)(g * (1f - (float)amount) + b * (float)amount);
+        byte new_b = (byte)(b * (1f - (float)amount) + r * (float)amount);
+
+        return ColorUtils.AdaptTo(new_r, new_g, new_b, a);
+    }
+}
+
+// OK
 public sealed class ColorBurnColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
         byte ColorBurn(byte channel)
         {
-            return (byte)Math.Max(0, channel - (255 - channel) * amount);
+            return (byte)Math.Max(0, channel - (255 - channel) * (float)amount);
         }
 
         return ColorUtils.AdaptTo(
@@ -172,20 +196,115 @@ public sealed class ColorBurnColorTransformer : IColorTransformer
     }
 }
 
-public sealed class ContrastColorTransformer : IColorTransformer
+// BUG!!
+public sealed class ContrastColorTransformer : IFactorColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public float FactorMinimum => 1f;
+
+    public float FactorMaximum => 10f;
+
+    public Color Transform(Color color, ColorRange amount, float factor)
     {
+        // Begrenzen des amount zwischen 0 (kein Kontrast) und 1 (maximaler Kontrast)
+        var delta = ((float)amount + 0.5f) * factor;
+        return Calculate(color, delta, factor);
+    }
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        return Transform(color, amount, 2f);
+    }
+
+    internal static Color Calculate(Color color, float amount, float factor)
+    {
+        // Kanäle extrahieren
         var channels = ColorUtils.AdaptFrom(color);
 
-        // amount: 1 = Originalkontrast, 0 = vollständig grau
-        amount = Math.Clamp(amount, 0f, 1f);
+        // Berechnung des Mittelwerts (Grauwert) der RGB-Kanäle
+        float average = (channels[0] + channels[1] + channels[2]) / 3f;
+
+        // Berechnung der Kontrasteffekte
+        byte Adjust(byte channel)
+        {
+            // Normiere den Kanal (Wert von 0 bis 255)
+            float normalized = channel / 255f;
+
+            // Berechne den neuen Wert mit Kontrast
+            // Um maximalen Kontrast zu erzielen, verschieben wir den Farbwert stark in Richtung 0 oder 1
+            float contrastAdjusted = (normalized - 0.5f) * amount + 0.5f;
+
+            // Stellen Sie sicher, dass der Wert im Bereich von 0 bis 1 bleibt
+            contrastAdjusted = Math.Clamp(contrastAdjusted, 0f, 1f);
+
+            // Skaliere zurück auf den Bereich 0-255
+            return (byte)(contrastAdjusted * 255f);
+        }
+
+        // Wende den Kontrast auf alle Kanäle an
+        return ColorUtils.AdaptTo(
+            Adjust(channels[0]),
+            Adjust(channels[1]),
+            Adjust(channels[2]),
+            channels[3]
+        );
+    }
+}
+
+// OK
+public sealed class HarmonyColorTransformer : IColorTransformer
+{
+    // Gegenteil von Kontrast
+
+    public float FactorMinimum => 1f;
+
+    public float FactorMaximum => 10f;
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        // Begrenzen des amount zwischen 0 (kein Kontrast) und 1 (maximaler Kontrast)
+        amount = new ColorRange(1f - amount);
+        return ContrastColorTransformer.Calculate(color, amount, 1f);
+    }
+}
+
+// Failed!!
+//public sealed class DarkenColorTransformer : IColorTransformer
+//{
+//    public Color Transform(Color color, ColorRange amount)
+//    {
+//        var channels = ColorUtils.AdaptFrom(color);
+
+//        // amount: 0 = keine Abdunkelung, 1 = maximale Abdunkelung (Schwarz)
+//        amount = Math.Clamp(amount, 0f, 1f);
+
+//        byte Darken(byte channel)
+//        {
+//            // Lineare Abdunkelung auf Basis des Amounts
+//            float normalized = channel / 255f;
+//            float adjusted = (float)Math.Pow(normalized, 1f + amount); // Sanftere Abdunkelung
+//            return ColorUtils.Clamp(adjusted * 255f, 0f, 255f);
+//        }
+
+//        return ColorUtils.AdaptTo(
+//            Darken(channels[0]),
+//            Darken(channels[1]),
+//            Darken(channels[2]),
+//            channels[3]
+//        );
+//    }
+//}
+
+// OK
+public sealed class DimColorTransformer : IColorTransformer
+{
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+        int delta = (int)(255f - 255f * (float)amount);
 
         byte Adjust(byte channel)
         {
-            float normalized = channel / 255f;
-            float adjusted = ((normalized - 0.5f) * amount + 0.5f) * 255f;
-            return ColorUtils.Clamp(adjusted, 0f, 255f);
+            return (byte)((channel / 255f) * delta);
         }
 
         return ColorUtils.AdaptTo(
@@ -197,137 +316,75 @@ public sealed class ContrastColorTransformer : IColorTransformer
     }
 }
 
-public sealed class DarkenColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        // amount: 0 = keine Abdunkelung, 1 = maximale Abdunkelung
-        amount = Math.Clamp(amount, 0f, 1f);
-
-        byte Darken(byte channel) =>
-            ColorUtils.Clamp(channel - (channel * amount), 0, 255);
-
-        return ColorUtils.AdaptTo(
-            Darken(channels[0]),
-            Darken(channels[1]),
-            Darken(channels[2]),
-            channels[3]
-        );
-    }
-}
-
+// OK
 public sealed class DepthColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
         // amount: 0 = niedrigere Farbtiefe, 1 = normale Farbtiefe
-        // Um die Farbtiefe zu simulieren, wird der Farbkanal auf den entsprechenden Bereich beschränkt.
+        // Wir verwenden hier eine Skalierung auf ein bestimmtes Tiefenniveau
 
-        // Zuerst berechnen wir die maximale Anzahl an Stufen basierend auf der Farbtiefe
-        int max_depth = (int)(255 * amount); // Bereich von 0 bis 255, abhängig von 'amount'
+        // Berechne die Anzahl der Farbstufen für die reduzierte Farbtiefe
+        int depth_steps = (int)(255f - (float)amount * 255f); // Bereich von 0 bis 255 abhängig von 'amount'
 
+        // Funktion zum Anpassen der Farbtiefe eines Kanals
         byte Adjust(byte channel)
         {
-            return (byte)((channel / 255f) * max_depth);
+            int adjusted = (int)(channel / 255f * depth_steps); // Werte auf die reduzierte Farbtiefe komprimieren
+            return (byte)(adjusted * (255f / depth_steps)); // Zurückskalieren auf den ursprünglichen Bereich
         }
 
         return ColorUtils.AdaptTo(
-            Adjust(channels[0]),
-            Adjust(channels[1]),
-            Adjust(channels[2]),
-            channels[3]
+            Adjust(channels[0]), // R
+            Adjust(channels[1]), // G
+            Adjust(channels[2]), // B
+            channels[3] // Alpha bleibt unverändert
         );
     }
 }
 
-public class DesaturationTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
+//public sealed class GammaColorTransformer : IColorTransformer
+//{
+//    public Color Transform(Color color, ColorRange amount)
+//    {
+//        var channels = ColorUtils.AdaptFrom(color);
 
-        amount = Math.Clamp(amount, 0f, 1f); // Begrenzung auf [0, 1]
+//        if (amount <= 0f)
+//            return color; // keine Veränderung bei amount = 0
 
-        float gray = (channels[0] + channels[1] + channels[2]) / 3f;
+//        float inverse_gamma = 1.0f / amount;
 
-        byte Mix(byte original) =>
-            (byte)Math.Clamp(original * (1 - amount) + gray * amount, 0, 255);
+//        byte Adjust(byte channel)
+//        {
+//            float normalized = channel / 255f;
+//            float corrected = MathF.Pow(normalized, inverse_gamma) * 255f;
+//            return ColorUtils.Clamp(corrected, 0f, 255f);
+//        }
 
-        return ColorUtils.AdaptTo(
-            Mix(channels[0]),
-            Mix(channels[1]),
-            Mix(channels[2]),
-            channels[3]
-        );
-    }
-}
+//        return ColorUtils.AdaptTo(
+//            Adjust(channels[0]),
+//            Adjust(channels[1]),
+//            Adjust(channels[2]),
+//            channels[3]
+//        );
+//    }
+//}
 
-public sealed class DivideColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        byte Add(byte channel)
-        {
-            return ColorUtils.Clamp(channel / amount, 0, 255);
-        }
-
-        return ColorUtils.AdaptTo(
-            Add(channels[0]),
-            Add(channels[1]),
-            Add(channels[2]),
-            channels[3]
-        );
-    }
-}
-
-public sealed class GammaColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        if (amount <= 0f)
-            return color; // keine Veränderung bei amount = 0
-
-        float inverse_gamma = 1.0f / amount;
-
-        byte Adjust(byte channel)
-        {
-            float normalized = channel / 255f;
-            float corrected = MathF.Pow(normalized, inverse_gamma) * 255f;
-            return ColorUtils.Clamp(corrected, 0f, 255f);
-        }
-
-        return ColorUtils.AdaptTo(
-            Adjust(channels[0]),
-            Adjust(channels[1]),
-            Adjust(channels[2]),
-            channels[3]
-        );
-    }
-}
-
+// OK
 public sealed class GrayColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Sicherstellen, dass amount im Bereich [0, 1] liegt
-        amount = Math.Clamp(amount, 0f, 1f);
-
         // Grauwert berechnen nach Luminanzformel
-        int gray = (int)(channels[0] * 0.3 + channels[1] * 0.59 + channels[2] * 0.11);
+        int gray = (int)(channels[0] * 0.3f + channels[1] * 0.59f + channels[2] * 0.11f);
 
         // Interpolation zwischen Originalfarbe und Grauwert
         byte Blend(byte original, int gray_value) =>
-            (byte)Math.Round(original + (gray_value - original) * amount);
+            (byte)Math.Round(original + (gray_value - original) * (float)amount);
 
         return ColorUtils.AdaptTo(
             Blend(channels[0], gray),
@@ -338,110 +395,108 @@ public sealed class GrayColorTransformer : IColorTransformer
     }
 }
 
-public sealed class LerpColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
+//public sealed class LerpColorTransformer : IColorTransformer
+//{
+//    public Color Transform(Color color, ColorRange amount)
+//    {
+//        var channels = ColorUtils.AdaptFrom(color);
 
-        // Verwende amount direkt als Interpolationsfaktor (0 = keine Änderung, 1 = maximal)
-        byte Lerp(byte channel)
-        {
-            return ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
-        }
+//        // Verwende amount direkt als Interpolationsfaktor (0 = keine Änderung, 1 = maximal)
+//        byte Lerp(byte channel)
+//        {
+//            return ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
+//        }
 
-        return ColorUtils.AdaptTo(
-            Lerp(channels[0]),
-            Lerp(channels[1]),
-            Lerp(channels[2]),
-            channels[3]
-        );
-    }
-}
+//        return ColorUtils.AdaptTo(
+//            Lerp(channels[0]),
+//            Lerp(channels[1]),
+//            Lerp(channels[2]),
+//            channels[3]
+//        );
+//    }
+//}
 
-public sealed class LightenColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
+//public sealed class LightenColorTransformer : IColorTransformer
+//{
+//    public Color Transform(Color color, ColorRange amount)
+//    {
+//        var channels = ColorUtils.AdaptFrom(color);
 
-        // amount: 0 = keine Aufhellung, 1 = maximale Aufhellung
-        amount = Math.Clamp(amount, 0f, 1f);
+//        // amount: 0 = keine Aufhellung, 1 = maximale Aufhellung
+//        amount = Math.Clamp(amount, 0f, 1f);
 
-        byte Lighten(byte channel) =>
-            ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
+//        byte Lighten(byte channel) =>
+//            ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
 
-        return ColorUtils.AdaptTo(
-            Lighten(channels[0]),
-            Lighten(channels[1]),
-            Lighten(channels[2]),
-            channels[3]
-        );
-    }
-}
+//        return ColorUtils.AdaptTo(
+//            Lighten(channels[0]),
+//            Lighten(channels[1]),
+//            Lighten(channels[2]),
+//            channels[3]
+//        );
+//    }
+//}
 
+// BUG!!!
 public sealed class HueColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // amount: 0 = keine Verschiebung, 1 = maximale Verschiebung
-        float shift_amount = amount * 180f; // 180° Verschiebung maximal
-        float radians = shift_amount * (MathF.PI / 180f); // Konvertiere zu Radians
+        var hsv = new Spaces.HSV(color);
+        hsv.HueComponent = new ColorRange(((float)hsv.HueComponent.Value + (float)amount) % 1f);
 
-        byte Shift(byte channel, float amount)
-        {
-            // Umrechnung von Farbsättigung auf einfache Weise
-            return ColorUtils.Clamp((channel + amount) % 255, 0, 255);
-        }
-
-        return ColorUtils.AdaptTo(
-            Shift(channels[0], radians),
-            Shift(channels[1], radians),
-            Shift(channels[2], radians),
-            channels[3]
-        );
+        return hsv.ConvertTo();
     }
 }
 
-public sealed class IntensifyColorTransformer : IColorTransformer
+// BUG
+public sealed class SaturationColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
+        var hsv = new Spaces.HSV(color);
+        var min_saturation = hsv.SaturationComponent; // Standardwert
 
-        // Sicherstellen, dass 'amount' im Bereich von 0 bis 2 liegt, um extreme Farbverstärkungen zu vermeiden
-        amount = Math.Clamp(amount, 0f, 2f);
+        hsv.SaturationComponent = new ColorRange((float)min_saturation + (float)amount);
 
-        byte Intensify(byte channel)
-        {
-            // Kanalwert wird basierend auf 'amount' verstärkt
-            int result = (int)(channel * amount);
-            return (byte)ColorUtils.Clamp(result, 0, 255);
-        }
-
-        return ColorUtils.AdaptTo(
-            Intensify(channels[0]),
-            Intensify(channels[1]),
-            Intensify(channels[2]),
-            channels[3]
-        );
+        return hsv.ConvertTo();
     }
 }
 
-public sealed class InvertColorTransformer : IColorTransformer
+// BUG
+public sealed class DesaturationColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+        var hsv = new Spaces.HSV(color);
+        var max_saturation = hsv.SaturationComponent; // Standardwert
+
+        hsv.SaturationComponent = new ColorRange((float)max_saturation - (float)amount);
+
+        return hsv.ConvertTo();
+    }
+}
+
+// OK
+public sealed class NegativeColorTransformer : IColorTransformer
+{
+    // Invert
+
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Sicherstellen, dass amount im Bereich [0, 1] liegt
-        amount = Math.Clamp(amount, 0f, 1f);
+        // Invertierte Farbe berechnen
+        byte Invert(byte original) =>
+            (byte)(255 - original);  // Direkte Invertierung
 
-        // Interpolation zwischen Originalfarbe und invertierter Farbe
+        // Interpolation zwischen Original und invertierter Farbe
         byte Mix(byte original) =>
-            (byte)(original + (255 - original) * 2 * amount);  // Invertierung und Interpolation
+            (byte)(original * (1f - (float)amount) + Invert(original) * (float)amount);
 
         return ColorUtils.AdaptTo(
             Mix(channels[0]),
@@ -452,66 +507,19 @@ public sealed class InvertColorTransformer : IColorTransformer
     }
 }
 
-public sealed class MultiplyColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        byte Add(byte channel)
-        {
-            return ColorUtils.Clamp(channel * amount, 0, 255);
-        }
-
-        return ColorUtils.AdaptTo(
-            Add(channels[0]),
-            Add(channels[1]),
-            Add(channels[2]),
-            channels[3]
-        );
-    }
-}
-
-public sealed class NormalizeColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        // Normalisieren der Farbwerte von [0, 255] auf [0, 1]
-        float normalizedR = channels[0] / 255f;
-        float normalizedG = channels[1] / 255f;
-        float normalizedB = channels[2] / 255f;
-        float normalizedA = channels[3] / 255f;
-
-        // Wenn amount verwendet werden soll, um die Normalisierung zu beeinflussen, z.B. eine Art von Verstärkung oder Reduzierung:
-        normalizedR = Math.Clamp(normalizedR * amount, 0f, 1f);
-        normalizedG = Math.Clamp(normalizedG * amount, 0f, 1f);
-        normalizedB = Math.Clamp(normalizedB * amount, 0f, 1f);
-        normalizedA = Math.Clamp(normalizedA * amount, 0f, 1f);
-
-        // Umwandeln der normalisierten Farbwerte zurück in [0, 255]
-        byte r = (byte)(normalizedR * 255);
-        byte g = (byte)(normalizedG * 255);
-        byte b = (byte)(normalizedB * 255);
-        byte a = (byte)(normalizedA * 255);
-
-        // Rückgabe der normalisierten Farbe
-        return ColorUtils.AdaptTo(r, g, b, a);
-    }
-}
-
-
 public sealed class PosterizeColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
+
+        // Berechnen des Delta-Werts und der Schritte basierend auf amount
+        var delta = 1f - amount;
+        int steps = ColorUtils.Clamp((int)(delta * 16), 2, 256);  // Mindestens 2 Stufen für die Posterization
+        float step_size = 255f / (steps - 1);
 
         byte Posterize(byte channel)
         {
-            int steps = ColorUtils.Clamp((int)(amount * 16), 1, 255);  // Mindestens 1 Stufe
-            float step_size = 255f / (steps - 1);
             return (byte)(MathF.Round(channel / step_size) * step_size);
         }
 
@@ -524,73 +532,29 @@ public sealed class PosterizeColorTransformer : IColorTransformer
     }
 }
 
-public class QuantizeColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float amount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        int steps = (int)Math.Max(2, amount); // steps = 2..255
-        float step_size = 255f / (steps - 1);
-
-        byte Quantize(byte c) => (byte)(Math.Round(c / step_size) * step_size);
-
-        return ColorUtils.AdaptTo(
-            Quantize(channels[0]),
-            Quantize(channels[1]),
-            Quantize(channels[2]),
-            channels[3]
-        );
-    }
-}
-
-public sealed class SaturateColorTransformer : IFactorColorTransformer
-{
-    public float FactorMinimum => 0.0f; // Keine Sättigung
-    public float FactorMaximum => 2.0f; // Maximale Sättigung
-
-    public Color Transform(Color color, float amount, float factor)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        // Beschränkung des Faktorenbereichs
-        factor = Math.Clamp(factor, FactorMinimum, FactorMaximum);
-
-        // Berechne die Sättigung
-        byte BoostSaturation(byte channel, float factor)
-        {
-            return ColorUtils.Clamp(channel * factor * amount, 0, 255);
-        }
-
-        // Wende den Sättigungsboost an
-        return ColorUtils.AdaptTo(
-            BoostSaturation(channels[0], factor),
-            BoostSaturation(channels[1], factor),
-            BoostSaturation(channels[2], factor),
-            channels[3]
-        );
-    }
-
-    public Color Transform(Color color, float amount)
-    {
-        return Transform(color, amount, 1.5f); // Standardwert für Sättigungsfaktor
-    }
-}
-
+// OK
 public sealed class SolarizeColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
-
-        amount = Math.Clamp(amount, 0f, 1f);
 
         byte Solarize(byte channel)
         {
+            // Keine Änderung bei amount = 0
+            if (amount == 0f)
+                return channel;
+
+            // Solarisation ab einem Helligkeitswert von 128
             if (channel < 128)
                 return channel;
-            else
-                return (byte)(255 - (channel - 128) * amount);
+
+            // Teilweise invertieren, je nach amount
+            float t = (channel - 128f) / 127f; // Bereich von 0 bis 1
+            float inverted = 255f - (127f * t); // klassische Invertierung ab 128
+            float mixed = channel * (1f - (float)amount) + inverted * amount;
+
+            return (byte)Math.Clamp(Math.Round(mixed), 0, 255);
         }
 
         return ColorUtils.AdaptTo(
@@ -602,61 +566,15 @@ public sealed class SolarizeColorTransformer : IColorTransformer
     }
 }
 
-public sealed class SubtractiveColorTransformer : IColorTransformer
+// OK
+public sealed class ColdColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        byte Add(byte channel)
-        {
-            return ColorUtils.Clamp(channel - amount * 255f, 0, 255);
-        }
-
-        return ColorUtils.AdaptTo(
-            Add(channels[0]),
-            Add(channels[1]),
-            Add(channels[2]),
-            channels[3]
-        );
-    }
-}
-
-public sealed class TemperatureColorTransformer : IColorTransformer
-{
-    public Color Transform(Color color, float temperatureAmount)
-    {
-        var channels = ColorUtils.AdaptFrom(color);
-
-        // temperatureAmount: 
-        // 0 = kälter (blau), 
-        // 1 = neutral (keine Änderung), 
-        // 2 = wärmer (rot)
-
-        // Angenommene Temperaturwerte zwischen 0 und 2
-        // 0 -> kühler (blauer)
-        // 1 -> neutral
-        // 2 -> wärmer (roter)
-
-        // Berechne die Anpassung für Rot und Blau
-        byte AdjustRed(byte r, float amount)
-        {
-            // Wenn es kühler werden soll, den Rotanteil verringern
-            if (amount < 1.0f)
-                return (byte)(r * (1 - amount * 0.5f)); // Je näher 0, desto weniger rot
-            return r;
-        }
-
-        byte AdjustBlue(byte b, float amount)
-        {
-            // Wenn es wärmer werden soll, den Blauanteil verringern
-            if (amount > 1.0f)
-                return (byte)(b * (1 - (amount - 1) * 0.5f)); // Je näher 2, desto weniger blau
-            return b;
-        }
-
-        byte r = AdjustRed(channels[0], temperatureAmount);
-        byte b = AdjustBlue(channels[2], temperatureAmount);
+        byte r = (byte)(channels[0] * (1f - 0.5f * (float)amount)); // Reduzieren von Rot
+        byte b = (byte)Math.Clamp(channels[2] + (float)amount * 100f, 0f, 255f); // Erhöhen von Blau
 
         return ColorUtils.AdaptTo(
             r,
@@ -667,66 +585,267 @@ public sealed class TemperatureColorTransformer : IColorTransformer
     }
 }
 
-public sealed class ToneColorTransformer : IFactorColorTransformer
+// OK
+public sealed class HotColorTransformer : IColorTransformer
 {
-    // Definiert den minimalen und maximalen Faktor
-    public float FactorMinimum { get; } = 0.1f;  // Beispiel: minimaler Faktor
-    public float FactorMaximum { get; } = 3.0f;  // Beispiel: maximaler Faktor
-
-    public Color Transform(Color color, float amount, float factor)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Beschränke den Faktor im Bereich von FactorMinimum bis FactorMaximum
-        factor = Math.Clamp(factor, FactorMinimum, FactorMaximum);
-
-        // amount: 0 = keine Änderung, > 0 = stärkere Anpassung
-        byte ToneAdjustment(byte channel, float factor)
-        {
-            return (byte)ColorUtils.Clamp((float)(channel * Math.Pow(factor, amount)), 0, 255);
-        }
+        byte b = (byte)(channels[2] * (1f - 0.5f * (float)amount)); // Reduzieren von Blau
+        byte r = (byte)Math.Clamp(channels[0] + (float)amount * 100f, 0f, 255f); // Erhöhen von Rot
 
         return ColorUtils.AdaptTo(
-            ToneAdjustment(channels[0], factor),
-            ToneAdjustment(channels[1], factor),
-            ToneAdjustment(channels[2], factor),
+            r,
+            channels[1],
+            b,
             channels[3]
         );
     }
-
-    public Color Transform(Color color, float amount)
-    {
-        return Transform(color, amount, 1.0f); // Standardwert für factor
-    }
 }
 
-public sealed class VibranceColorTransformer : IColorTransformer
+
+//public sealed class TemperatureColorTransformer : IColorTransformer
+//{
+//    public Color Transform(Color color, float temperatureAmount)
+//    {
+//        var channels = ColorUtils.AdaptFrom(color);
+
+//        // temperatureAmount: 
+//        // 0 = kälter (blau), 
+//        // 1 = neutral (keine Änderung), 
+//        // 2 = wärmer (rot)
+
+//        // Angenommene Temperaturwerte zwischen 0 und 2
+//        // 0 -> kühler (blauer)
+//        // 1 -> neutral
+//        // 2 -> wärmer (roter)
+
+//        // Berechne die Anpassung für Rot und Blau
+//        byte AdjustRed(byte r, ColorRange amount)
+//        {
+//            // Wenn es kühler werden soll, den Rotanteil verringern
+//            if (amount < 1.0f)
+//                return (byte)(r * (1 - amount * 0.5f)); // Je näher 0, desto weniger rot
+//            return r;
+//        }
+
+//        byte AdjustBlue(byte b, ColorRange amount)
+//        {
+//            // Wenn es wärmer werden soll, den Blauanteil verringern
+//            if (amount > 1.0f)
+//                return (byte)(b * (1 - (amount - 1) * 0.5f)); // Je näher 2, desto weniger blau
+//            return b;
+//        }
+
+//        byte r = AdjustRed(channels[0], temperatureAmount + 0.5f);
+//        byte b = AdjustBlue(channels[2], temperatureAmount + 0.5f);
+
+//        return ColorUtils.AdaptTo(
+//            r,
+//            channels[1],
+//            b,
+//            channels[3]
+//        );
+//    }
+//}
+//
+//
+
+// BUG
+public sealed class MidToneColorTransformer : IColorTransformer
 {
-    public Color Transform(Color color, float amount)
+    public Color Transform(Color color, ColorRange amount)
     {
         var channels = ColorUtils.AdaptFrom(color);
 
-        // Wenn amount 0 ist, keine Änderung. Wenn amount 1, maximale Veränderung.
-        amount = Math.Clamp(amount, 0f, 1f);
-        float gray = 0.3f * channels[0] + 0.59f * channels[1] + 0.11f * channels[2];
+        // Betrag von amount zwischen 0 und 1 für feinere Kontrolle
+        //amount = Math.Clamp(amount, 0f, 1f);
 
-        // Verwende amount, um die Farbbrillanz zu erhöhen
         byte Adjust(byte channel)
         {
             if (channel < 128)
-                return (byte)(channel + (byte)(128 * amount));
-            return channel;
+            {
+                // Abgedunkelte Bereiche (0-127) werden weiter abgedunkelt
+                return ColorUtils.Clamp(channel - (byte)((float)amount * (128f - channel)), 0f, 255f);
+            }
+            else
+            {
+                // Helle Bereiche (128-255) werden aufgehellt
+                return ColorUtils.Clamp(channel + (byte)((float)amount * (255f - channel)), 0f, 255f);
+            }
         }
 
         return ColorUtils.AdaptTo(
             Adjust(channels[0]),
             Adjust(channels[1]),
             Adjust(channels[2]),
-            channels[3]
+            channels[3] // Beibehaltung der Transparenz (Alpha)
         );
     }
 }
 
+// OK
+public sealed class InvertedMidToneColorTransformer : IColorTransformer
+{
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
 
+        // Dynamische Anpassung des Kanals (0-127 -> heller, 128-255 -> dunkler)
+        byte Adjust(byte channel)
+        {
+            if (channel <= 127)
+                return (byte)(channel + (255f - channel) * (float)amount);  // Heller machen (bei 0 wird maximal heller)
+            else
+                return (byte)(channel - (channel - 128f) * (float)amount);  // Dunkler machen (bei 255 wird maximal dunkler)
+        }
 
+        return ColorUtils.AdaptTo(
+            Adjust(channels[0]), // Red
+            Adjust(channels[1]), // Green
+            Adjust(channels[2]), // Blue
+            channels[3]          // Alpha
+        );
+    }
+}
+
+// OK, aber Name unklar
+public sealed class ToneExposureColorTransformer : IColorTransformer
+{
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+
+        // Dynamische Anpassung des Kanals (0-127 -> heller, 128-255 -> dunkler)
+        byte Adjust(byte channel)
+        {
+            if (channel <= (255f * amount))
+                return (byte)(channel + (255f - channel) * (float)amount);  // Heller machen (bei 0 wird maximal heller)
+            else
+                return (byte)(channel - (channel - 128f) * (float)amount);  // Dunkler machen (bei 255 wird maximal dunkler)
+        }
+
+        return ColorUtils.AdaptTo(
+            Adjust(channels[0]), // Red
+            Adjust(channels[1]), // Green
+            Adjust(channels[2]), // Blue
+            channels[3]          // Alpha
+        );
+    }
+}
+
+// OK
+public sealed class SepiaColorTransformer : IColorTransformer
+{
+    public Color Transform(Color color, ColorRange amount)
+    {
+        // Konvertiere die Ausgangsfarbe in RGB
+        var originalColor = ColorUtils.AdaptFrom(color);
+        // Sepia Tone RGB 112, 66, 20
+
+        // Berechne den gemischten Wert basierend auf `amount`
+        var r = BlendChannel(originalColor[0], 112, amount);
+        var g = BlendChannel(originalColor[1], 66, amount);
+        var b = BlendChannel(originalColor[2], 20, amount);
+
+        // Die Alpha-Komponente bleibt unverändert
+        byte a = originalColor[3];
+
+        // Rückgabe der neuen Farbe mit Sepia-Ton
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+
+    // Hilfsmethode zur Berechnung des gemischten Werts für eine Farbe (R, G, B)
+    private byte BlendChannel(byte originalValue, byte sepiaValue, ColorRange amount)
+    {
+        // Mische die ursprüngliche Farbe mit dem Sepia-Wert
+        return ColorUtils.Clamp((int)((originalValue * (1 - (float)amount)) + (sepiaValue * (float)amount)));
+    }
+}
+
+// OK
+public sealed class ExposureColorTransformer : IFactorColorTransformer
+{
+    public float FactorMinimum => 1f;
+
+    public float FactorMaximum => 10f;
+
+    public Color Transform(Color color, ColorRange amount, float factor)
+    {
+        var a1 = ColorUtils.AdaptFrom(color); // Die Eingabefarbe
+
+        // Bestimme den Belichtungsfaktor (Amount)
+        float exposure = 1f + ((factor - FactorMinimum) * (float)amount) + (float)amount; // Je höher der Wert, desto mehr wird die Belichtung erhöht
+
+        // Berechne die neue RGB-Werte, indem der Belichtungsfaktor angewendet wird
+        byte r = ColorUtils.Clamp((int)(a1[0] * exposure));
+        byte g = ColorUtils.Clamp((int)(a1[1] * exposure));
+        byte b = ColorUtils.Clamp((int)(a1[2] * exposure));
+        byte a = a1[3]; // Behalte die Alpha-Komponente bei
+
+        // Rückgabe der belichteten Farbe
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        return Transform(color, amount, 1f);
+    }
+}
+
+public sealed class DarknessColorTransformer : IFactorColorTransformer
+{
+    public float FactorMinimum => 0f;
+
+    public float FactorMaximum => 1f;
+
+    public Color Transform(Color color, ColorRange amount, float factor)
+    {
+        var a1 = ColorUtils.AdaptFrom(color); // Die Eingabefarbe
+
+        // Bestimme den Dunkelheitsfaktor (Amount)
+        float darkness = 1f - ((factor - FactorMinimum) * (float)amount); // Je höher der Wert, desto dunkler wird die Farbe
+
+        // Berechne die neue RGB-Werte, indem der Dunkelheitsfaktor angewendet wird
+        byte r = ColorUtils.Clamp((int)(a1[0] * darkness));
+        byte g = ColorUtils.Clamp((int)(a1[1] * darkness));
+        byte b = ColorUtils.Clamp((int)(a1[2] * darkness));
+        byte a = a1[3]; // Behalte die Alpha-Komponente bei
+
+        // Rückgabe der dunkleren Farbe
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        return Transform(color, amount, 1f);
+    }
+}
+public sealed class ShadowColorTransformer : IFactorColorTransformer
+{
+    public float FactorMinimum => 0f;
+    public float FactorMaximum => 10f;
+
+    public Color Transform(Color color, ColorRange amount, float factor)
+    {
+        var a1 = ColorUtils.AdaptFrom(color);
+
+        // Stärke des Schattens: dunkle Bereiche werden stärker beeinflusst
+        float shadow_strength = (float)amount * factor;
+
+        // Formel: Je dunkler der Kanal, desto stärker die Abdunklung
+        byte r = ColorUtils.Clamp((int)(a1[0] * (1f - shadow_strength * (1f - a1[0] / 255f))));
+        byte g = ColorUtils.Clamp((int)(a1[1] * (1f - shadow_strength * (1f - a1[1] / 255f))));
+        byte b = ColorUtils.Clamp((int)(a1[2] * (1f - shadow_strength * (1f - a1[2] / 255f))));
+        byte a = a1[3];
+
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        return Transform(color, amount, 1f);
+    }
+}
 

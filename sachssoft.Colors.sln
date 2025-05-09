@@ -21,6 +21,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Projektmappenelemente", "Pr
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sachssoft.Avalonia.Colors.Samples", "Avalonia.Samples\sachssoft.Avalonia.Colors.Samples.csproj", "{05C846BF-BF8A-4278-95EC-FD8F3E171856}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "sachssoft.Drawing.Colors.Samples", "Drawing.Samples\sachssoft.Drawing.Colors.Samples.csproj", "{624AEE74-062E-4896-AEDB-94523337B84E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{3C5204F1-00F0-43C3-9B0C-8E23CB9F3C7C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3C5204F1-00F0-43C3-9B0C-8E23CB9F3C7C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3C5204F1-00F0-43C3-9B0C-8E23CB9F3C7C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05C846BF-BF8A-4278-95EC-FD8F3E171856}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05C846BF-BF8A-4278-95EC-FD8F3E171856}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05C846BF-BF8A-4278-95EC-FD8F3E171856}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05C846BF-BF8A-4278-95EC-FD8F3E171856}.Release|Any CPU.Build.0 = Release|Any CPU
+		{624AEE74-062E-4896-AEDB-94523337B84E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{624AEE74-062E-4896-AEDB-94523337B84E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{624AEE74-062E-4896-AEDB-94523337B84E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{624AEE74-062E-4896-AEDB-94523337B84E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

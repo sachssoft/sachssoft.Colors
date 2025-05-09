@@ -28,67 +28,59 @@ using Color = sachssoft.Colors.ColorCode;
 
 public struct ColorRange
 {
-    public const decimal MinValue = 0.0m;
-    public const decimal MaxValue = 1.0m;
+    public const float MinValue = 0.0f;
+    public const float MaxValue = 1.0f;
 
-    private decimal _value;
-
-    public ColorRange(decimal value)
-    {
-        _value = Math.Min(ColorRange.MinValue, Math.Max(value, ColorRange.MaxValue));
-    }
-
-    public ColorRange(decimal value, decimal max_value) : this(value / max_value)
-    {
-    }
-
-    public ColorRange(Half value)
-    {
-        _value = Math.Max(ColorRange.MinValue, Math.Min(Convert.ToDecimal(value), ColorRange.MaxValue));
-    }
-
-    public ColorRange(Half value, Half max_value) : this((double)value / (double)max_value)
-    {
-    }
+    private float _value;
 
     public ColorRange(float value)
     {
-        _value = Math.Max(ColorRange.MinValue, Math.Min((decimal)value, ColorRange.MaxValue));
+        _value = MathF.Max(MinValue, MathF.Min(value, MaxValue));
     }
 
-    public ColorRange(float value, float max_value) : this(value / max_value)
+    public ColorRange(float value, float max_value) : this(value / max_value) { }
+
+    public ColorRange(Half value)
     {
+        _value = MathF.Max(MinValue, MathF.Min((float)value, MaxValue));
     }
+
+    public ColorRange(Half value, Half max_value) : this((float)value / (float)max_value) { }
 
     public ColorRange(double value)
     {
-        _value = Math.Max(ColorRange.MinValue, Math.Min((decimal)value, ColorRange.MaxValue));
+        _value = MathF.Max(MinValue, MathF.Min((float)value, MaxValue));
     }
 
-    public ColorRange(double value, double max_value) : this(value / max_value)
-    {
-    }
+    public ColorRange(double value, double max_value) : this((float)value / (float)max_value) { }
 
-    public decimal Value
+    public bool IsBelowMin => _value <= MinValue;
+    public bool IsAboveMax => _value >= MaxValue;
+
+    public float Value
     {
         get => _value;
-        set
-        {
-            _value = Math.Min(ColorRange.MinValue, Math.Max(value, ColorRange.MaxValue));
-        }
+        set => _value = MathF.Max(MinValue, MathF.Min(value, MaxValue));
     }
 
-    public override int GetHashCode()
+    public override bool Equals(object? obj)
     {
-        return _value.GetHashCode();
+        return obj switch
+        {
+            ColorRange other => _value == other._value,
+            float f => _value == f,
+            double d => _value == (float)d,
+            decimal m => _value == (float)m,
+            _ => false
+        };
     }
+
+    public override int GetHashCode() => _value.GetHashCode();
 
     public static ColorRange Parse(string? s, CultureInfo culture)
     {
-        if (TryParse(s, culture, out var d) == true)
-        {
+        if (TryParse(s, culture, out var d))
             return d;
-        }
 
         throw new FormatException();
     }
@@ -99,29 +91,29 @@ public struct ColorRange
         var permille = culture.NumberFormat.PerMilleSymbol;
 
         s ??= "0.0";
-        result = new ColorRange(0.0);
+        result = new ColorRange(0.0f);
 
-        if ((new Regex(@"^\d+[.]?\d*" + percent + "?$")).IsMatch(s) == true)
+        if (Regex.IsMatch(s, @"^\d+[.]?\d*" + Regex.Escape(percent) + "?$"))
         {
-            if (double.TryParse(s.Replace(percent, ""), NumberStyles.Number, culture, out var d) == true)
+            if (float.TryParse(s.Replace(percent, ""), NumberStyles.Number, culture, out var f))
             {
-                result = new ColorRange(d);
+                result = new ColorRange(f / 100f);
                 return true;
             }
         }
-        else if ((new Regex(@"^\d+[.]?\d*" + permille + "?$")).IsMatch(s) == true)
+        else if (Regex.IsMatch(s, @"^\d+[.]?\d*" + Regex.Escape(permille) + "?$"))
         {
-            if (double.TryParse(s.Replace(permille, ""), NumberStyles.Number, culture, out var d) == true)
+            if (float.TryParse(s.Replace(permille, ""), NumberStyles.Number, culture, out var f))
             {
-                result = new ColorRange(d);
+                result = new ColorRange(f / 1000f);
                 return true;
             }
         }
         else
         {
-            if (double.TryParse(s, NumberStyles.Number, culture, out var d) == true)
+            if (float.TryParse(s, NumberStyles.Number, culture, out var f))
             {
-                result = new ColorRange(d);
+                result = new ColorRange(f);
                 return true;
             }
         }
@@ -129,102 +121,96 @@ public struct ColorRange
         return false;
     }
 
-    public string ToPercent()
-    {
-        return ToPercent(0, CultureInfo.CurrentCulture);
-    }
+    public string ToPercent() => ToPercent(0, CultureInfo.CurrentCulture);
 
     public string ToPercent(int decimal_places, CultureInfo culture)
     {
-        var f = "0.";
-
-        for (int i = 0; i < decimal_places; i++)
-            f += "0";
-
-        var amount = _value * 100.0m;
-
-        return amount.ToString(f, culture) + " " + culture.NumberFormat.PercentSymbol;
+        var format = "0." + new string('0', decimal_places);
+        var amount = _value * 100f;
+        return amount.ToString(format, culture) + " " + culture.NumberFormat.PercentSymbol;
     }
 
-    public override string ToString()
-    {
-        return _value.ToString("0.00");
-    }
+    public override string ToString() => _value.ToString("0.00");
 
-    public string ToString(IFormatProvider provider)
-    {
-        return _value.ToString("0.00", provider);
-    }
+    public string ToString(IFormatProvider provider) => _value.ToString("0.00", provider);
 
-    public string ToString(int decimal_places)
-    {
-        return ToString(decimal_places, NumberFormatInfo.CurrentInfo);
-    }
+    public string ToString(int decimal_places) => ToString(decimal_places, NumberFormatInfo.CurrentInfo);
 
     public string ToString(int decimal_places, IFormatProvider provider)
     {
-        var f = "0.";
-
-        for (int i = 0; i < decimal_places; i++)
-            f += "0";
-
-        return _value.ToString(f, provider);
-    }
-
-    public string ToString(string? format, IFormatProvider provider)
-    {
+        var format = "0." + new string('0', decimal_places);
         return _value.ToString(format, provider);
     }
 
-    public static ColorRange operator +(ColorRange a, ColorRange b)
-    {
-        return new ColorRange()
-        {
-            Value = a.Value + b.Value,
-        };
-    }
+    public string ToString(string? format, IFormatProvider provider) => _value.ToString(format, provider);
 
-    public static ColorRange operator -(ColorRange a, ColorRange b)
-    {
-        return new ColorRange()
-        {
-            Value = a.Value - b.Value,
-        };
-    }
+    // --- ColorRange mit ColorRange ---
+    public static bool operator ==(ColorRange a, ColorRange b) => a._value == b._value;
+    public static bool operator !=(ColorRange a, ColorRange b) => a._value != b._value;
+    public static bool operator <(ColorRange a, ColorRange b) => a._value < b._value;
+    public static bool operator >(ColorRange a, ColorRange b) => a._value > b._value;
+    public static bool operator <=(ColorRange a, ColorRange b) => a._value <= b._value;
+    public static bool operator >=(ColorRange a, ColorRange b) => a._value >= b._value;
 
-    public static ColorRange operator *(ColorRange a, ColorRange b)
-    {
-        return new ColorRange()
-        {
-            Value = a.Value * b.Value,
-        };
-    }
+    // --- ColorRange mit float ---
+    public static bool operator ==(ColorRange a, float b) => a._value == b;
+    public static bool operator !=(ColorRange a, float b) => a._value != b;
+    public static bool operator <(ColorRange a, float b) => a._value < b;
+    public static bool operator >(ColorRange a, float b) => a._value > b;
+    public static bool operator <=(ColorRange a, float b) => a._value <= b;
+    public static bool operator >=(ColorRange a, float b) => a._value >= b;
 
-    public static ColorRange operator /(ColorRange a, ColorRange b)
-    {
-        return new ColorRange()
-        {
-            Value = a.Value / b.Value,
-        };
-    }
+    public static bool operator ==(float a, ColorRange b) => a == b._value;
+    public static bool operator !=(float a, ColorRange b) => a != b._value;
+    public static bool operator <(float a, ColorRange b) => a < b._value;
+    public static bool operator >(float a, ColorRange b) => a > b._value;
+    public static bool operator <=(float a, ColorRange b) => a <= b._value;
+    public static bool operator >=(float a, ColorRange b) => a >= b._value;
 
-    public static ColorRange operator %(ColorRange a, ColorRange b)
-    {
-        return new ColorRange()
-        {
-            Value = a.Value % b.Value,
-        };
-    }
+    // --- ColorRange mit double ---
+    public static bool operator ==(ColorRange a, double b) => a._value == (float)b;
+    public static bool operator !=(ColorRange a, double b) => a._value != (float)b;
+    public static bool operator <(ColorRange a, double b) => a._value < (float)b;
+    public static bool operator >(ColorRange a, double b) => a._value > (float)b;
+    public static bool operator <=(ColorRange a, double b) => a._value <= (float)b;
+    public static bool operator >=(ColorRange a, double b) => a._value >= (float)b;
 
-    public static implicit operator decimal(ColorRange v) => v.Value;
-    public static explicit operator ColorRange(decimal v) => new(v);
+    public static bool operator ==(double a, ColorRange b) => a == (double)b._value;
+    public static bool operator !=(double a, ColorRange b) => a != (double)b._value;
+    public static bool operator <(double a, ColorRange b) => a < (double)b._value;
+    public static bool operator >(double a, ColorRange b) => a > (double)b._value;
+    public static bool operator <=(double a, ColorRange b) => a <= (double)b._value;
+    public static bool operator >=(double a, ColorRange b) => a >= (double)b._value;
 
-    public static implicit operator Half(ColorRange v) => (Half)Convert.ToDouble(v.Value);
-    public static explicit operator ColorRange(Half v) => new(v);
+    // --- ColorRange mit decimal ---
+    public static bool operator ==(ColorRange a, decimal b) => (decimal)a._value == b;
+    public static bool operator !=(ColorRange a, decimal b) => (decimal)a._value != b;
+    public static bool operator <(ColorRange a, decimal b) => (decimal)a._value < b;
+    public static bool operator >(ColorRange a, decimal b) => (decimal)a._value > b;
+    public static bool operator <=(ColorRange a, decimal b) => (decimal)a._value <= b;
+    public static bool operator >=(ColorRange a, decimal b) => (decimal)a._value >= b;
 
-    public static implicit operator float(ColorRange v) => (float)Convert.ToDouble(v.Value);
+    public static bool operator ==(decimal a, ColorRange b) => a == (decimal)b._value;
+    public static bool operator !=(decimal a, ColorRange b) => a != (decimal)b._value;
+    public static bool operator <(decimal a, ColorRange b) => a < (decimal)b._value;
+    public static bool operator >(decimal a, ColorRange b) => a > (decimal)b._value;
+    public static bool operator <=(decimal a, ColorRange b) => a <= (decimal)b._value;
+    public static bool operator >=(decimal a, ColorRange b) => a >= (decimal)b._value;
+
+    // float
+    public static implicit operator float(ColorRange v) => v._value;
     public static explicit operator ColorRange(float v) => new(v);
 
-    public static implicit operator double(ColorRange v) => Convert.ToDouble(v.Value);
-    public static explicit operator ColorRange(double v) => new(v);
+    // Half
+    public static implicit operator Half(ColorRange v) => (Half)v._value;
+    public static explicit operator ColorRange(Half v) => new((float)v);
+
+    // double
+    public static implicit operator double(ColorRange v) => v._value;
+    public static explicit operator ColorRange(double v) => new((float)v);
+
+    // decimal
+    public static implicit operator decimal(ColorRange v) => (decimal)v._value;
+    public static explicit operator ColorRange(decimal v) => new((float)v);
+
 }
