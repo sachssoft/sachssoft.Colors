@@ -196,7 +196,7 @@ public sealed class ColorBurnColorTransformer : IColorTransformer
     }
 }
 
-// BUG!!
+// Bug (Amount = 0 nicht korrekt)
 public sealed class ContrastColorTransformer : IFactorColorTransformer
 {
     public float FactorMinimum => 1f;
@@ -345,33 +345,6 @@ public sealed class DepthColorTransformer : IColorTransformer
     }
 }
 
-//public sealed class GammaColorTransformer : IColorTransformer
-//{
-//    public Color Transform(Color color, ColorRange amount)
-//    {
-//        var channels = ColorUtils.AdaptFrom(color);
-
-//        if (amount <= 0f)
-//            return color; // keine Veränderung bei amount = 0
-
-//        float inverse_gamma = 1.0f / amount;
-
-//        byte Adjust(byte channel)
-//        {
-//            float normalized = channel / 255f;
-//            float corrected = MathF.Pow(normalized, inverse_gamma) * 255f;
-//            return ColorUtils.Clamp(corrected, 0f, 255f);
-//        }
-
-//        return ColorUtils.AdaptTo(
-//            Adjust(channels[0]),
-//            Adjust(channels[1]),
-//            Adjust(channels[2]),
-//            channels[3]
-//        );
-//    }
-//}
-
 // OK
 public sealed class GrayColorTransformer : IColorTransformer
 {
@@ -395,49 +368,7 @@ public sealed class GrayColorTransformer : IColorTransformer
     }
 }
 
-//public sealed class LerpColorTransformer : IColorTransformer
-//{
-//    public Color Transform(Color color, ColorRange amount)
-//    {
-//        var channels = ColorUtils.AdaptFrom(color);
-
-//        // Verwende amount direkt als Interpolationsfaktor (0 = keine Änderung, 1 = maximal)
-//        byte Lerp(byte channel)
-//        {
-//            return ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
-//        }
-
-//        return ColorUtils.AdaptTo(
-//            Lerp(channels[0]),
-//            Lerp(channels[1]),
-//            Lerp(channels[2]),
-//            channels[3]
-//        );
-//    }
-//}
-
-//public sealed class LightenColorTransformer : IColorTransformer
-//{
-//    public Color Transform(Color color, ColorRange amount)
-//    {
-//        var channels = ColorUtils.AdaptFrom(color);
-
-//        // amount: 0 = keine Aufhellung, 1 = maximale Aufhellung
-//        amount = Math.Clamp(amount, 0f, 1f);
-
-//        byte Lighten(byte channel) =>
-//            ColorUtils.Clamp(channel + (255 - channel) * amount, 0, 255);
-
-//        return ColorUtils.AdaptTo(
-//            Lighten(channels[0]),
-//            Lighten(channels[1]),
-//            Lighten(channels[2]),
-//            channels[3]
-//        );
-//    }
-//}
-
-// BUG!!!
+// OK
 public sealed class HueColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, ColorRange amount)
@@ -451,7 +382,7 @@ public sealed class HueColorTransformer : IColorTransformer
     }
 }
 
-// BUG
+// OK
 public sealed class SaturationColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, ColorRange amount)
@@ -466,7 +397,7 @@ public sealed class SaturationColorTransformer : IColorTransformer
     }
 }
 
-// BUG
+// OK
 public sealed class DesaturationColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, ColorRange amount)
@@ -507,6 +438,8 @@ public sealed class NegativeColorTransformer : IColorTransformer
     }
 }
 
+
+// OK
 public sealed class PosterizeColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, ColorRange amount)
@@ -604,7 +537,7 @@ public sealed class HotColorTransformer : IColorTransformer
     }
 }
 
-
+// OK => Verschiebe zu Adjustment 
 //public sealed class TemperatureColorTransformer : IColorTransformer
 //{
 //    public Color Transform(Color color, float temperatureAmount)
@@ -652,7 +585,7 @@ public sealed class HotColorTransformer : IColorTransformer
 //
 //
 
-// BUG
+// OK
 public sealed class MidToneColorTransformer : IColorTransformer
 {
     public Color Transform(Color color, ColorRange amount)
@@ -794,6 +727,7 @@ public sealed class ExposureColorTransformer : IFactorColorTransformer
     }
 }
 
+// OK
 public sealed class DarknessColorTransformer : IFactorColorTransformer
 {
     public float FactorMinimum => 0f;
@@ -822,6 +756,8 @@ public sealed class DarknessColorTransformer : IFactorColorTransformer
         return Transform(color, amount, 1f);
     }
 }
+
+// OK
 public sealed class ShadowColorTransformer : IFactorColorTransformer
 {
     public float FactorMinimum => 0f;
