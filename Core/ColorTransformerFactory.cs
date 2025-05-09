@@ -45,6 +45,18 @@ public sealed class ColorTransformerFactory
         return new ColorTransformerFactory();
     }
 
+    public ColorTransformerFactory Add<T>(Color other, ColorRange amount) where T : IColorBlender, new()
+    {
+        _tasks.Add((c) =>
+        {
+            return c.Blend<T>(other, amount);
+        });
+        return this;
+    }
+
+    public ColorTransformerFactory Add<T>(Color other, float amount) where T : IColorBlender, new()
+        => Add<T>(other, new ColorRange(amount));
+
     public ColorTransformerFactory Add<T>(ColorRange amount) where T : IColorTransformer, new()
     {
         _tasks.Add((c) =>
@@ -53,6 +65,9 @@ public sealed class ColorTransformerFactory
         });
         return this;
     }
+
+    public ColorTransformerFactory Add<T>(float amount) where T : IColorTransformer, new() 
+        => Add<T>(new ColorRange(amount));
 
     public ColorTransformerFactory Add<T>(ColorRange amount, float factor) where T : IFactorColorTransformer, new()
     {
@@ -63,6 +78,9 @@ public sealed class ColorTransformerFactory
         return this;
     }
 
+    public ColorTransformerFactory Add<T>(float amount, float factor) where T : IFactorColorTransformer, new()
+        => Add<T>(new ColorRange(amount), factor);
+
     public ColorTransformerFactory Add(ColorRange amount, IFactorColorTransformer transformer)
     {
         _tasks.Add((c) =>
@@ -71,6 +89,9 @@ public sealed class ColorTransformerFactory
         });
         return this;
     }
+
+    public ColorTransformerFactory Add(float amount, IFactorColorTransformer transformer)
+        => Add(new ColorRange(amount), transformer);
 
     public Color Transform(Color color)
     {
