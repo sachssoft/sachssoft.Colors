@@ -1,8 +1,8 @@
 # Color Management and Conversion Tool
 
 ## Screenshots
-![Transformer](https://github.com/sachssoft/sachssoft.Colors/raw/master/Screenshots/screenhot1.jpg)
-![Blender](https://github.com/sachssoft/sachssoft.Colors/raw/master/Screenshots/screenhot2.jpg)
+![Transformer](https://raw.githubusercontent.com/sachssoft/sachssoft.Colors/master/Screenshots/screenhot1.jpg)
+![Blender](https://raw.githubusercontent.com/sachssoft/sachssoft.Colors/master/Screenshots/screenhot2.jpg)
 
 ## Description
 This tool provides a comprehensive set of features for managing and converting colors. It supports a wide variety of color models and spaces, allowing color transformations between these models. With support for popular color palettes and professional color systems like RAL and RAL DESIGN SYSTEM plus, users can perform precise color management tasks. The tool also offers powerful functions for color correction, adjustment, and blending.
