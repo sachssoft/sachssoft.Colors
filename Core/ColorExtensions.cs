@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
+using System.Xml;
 using System.Xml.Linq;
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors;
+namespace Sachssoft.Sasogine.Graphics.Colors;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors;
@@ -35,10 +36,20 @@ public static class ColorExtensions
         return transformer.Transform(color, amount);
     }
 
+    public static Color Adjust<T>(this Color color, float amount) where T : IColorTransformer, new()
+    {
+        return Adjust<T>(color, new ColorRange(amount));
+    }
+
     public static Color Adjust<T>(this Color color, ColorRange amount, float factor) where T : IFactorColorTransformer, new()
     {
         var transformer = new T();
         return transformer.Transform(color, amount);
+    }
+
+    public static Color Adjust<T>(this Color color, float amount, float factor) where T : IFactorColorTransformer, new()
+    {
+        return Adjust<T>(color, new ColorRange(amount), factor);
     }
 
     public static Color Adjust(this Color color, ColorRange amount, IColorTransformer transformer)
@@ -46,9 +57,19 @@ public static class ColorExtensions
         return transformer.Transform(color, amount);
     }
 
+    public static Color Adjust(this Color color, float amount, IColorTransformer transformer)
+    {
+        return Adjust(color, new ColorRange(amount), transformer);
+    }
+
     public static Color Adjust(this Color color, ColorRange amount, float factor, IFactorColorTransformer transformer)
     {
         return transformer.Transform(color, amount, factor);
+    }
+
+    public static Color Adjust(this Color color, float amount, float factor, IFactorColorTransformer transformer)
+    {
+        return Adjust(color, new ColorRange(amount), factor, transformer);
     }
 
     public static Color Blend<T>(this Color color, Color other, ColorRange amount) where T : IColorBlender, new()
@@ -57,9 +78,19 @@ public static class ColorExtensions
         return blender.Blend(color, other, amount);
     }
 
+    public static Color Blend<T>(this Color color, Color other, float amount) where T : IColorBlender, new()
+    {
+        return Blend<T>(color, other, new ColorRange(amount));
+    }
+
     public static Color Blend(this Color color, Color other, ColorRange amount, IColorBlender blender)
     {
         return blender.Blend(color, other, amount);
+    }
+
+    public static Color Blend(this Color color, Color other, float amount, IColorBlender blender)
+    {
+        return Blend(color, other, amount, blender);
     }
 
     public static Color FromSpace<T>(this T space) where T : struct, IColorSpace
@@ -135,6 +166,9 @@ public static class ColorExtensions
 
     public static Color FromHexToColor(this string hex, bool alpha)
     {
+        if (string.IsNullOrEmpty(hex))
+            return default;
+
         // Entferne das führende "#" falls vorhanden
         if (hex.StartsWith("#"))
         {
@@ -174,5 +208,29 @@ public static class ColorExtensions
     {
         var found = ColorNameEnumerator.Find<T>(name, comparison).FirstOrDefault(x => x.Name == name);
         return found.Equals(default(ColorName)) ? (Color?)null : found.Color;
+    }
+
+    public static Color ChangeAlphaChannel(this Color color, float alpha)
+    {
+        var channel = ColorUtils.AdaptFrom(color);
+        return new Color(channel[0], channel[1], channel[2], (byte)(float.Clamp(alpha, 0f, 1f) * 255));
+    }
+
+    public static Color ChangeRedChannel(this Color color, float red)
+    {
+        var channel = ColorUtils.AdaptFrom(color);
+        return new Color((byte)(float.Clamp(red, 0f, 1f) * 255), channel[1], channel[2], channel[3]);
+    }
+
+    public static Color ChangeGreenChannel(this Color color, float green)
+    {
+        var channel = ColorUtils.AdaptFrom(color);
+        return new Color(channel[0], (byte)(float.Clamp(green, 0f, 1f) * 255), channel[2], channel[3]);
+    }
+
+    public static Color ChangeBlueChannel(this Color color, float blue)
+    {
+        var channel = ColorUtils.AdaptFrom(color);
+        return new Color(channel[0], channel[1], (byte)(float.Clamp(blue, 0f, 1f) * 255), channel[3]);
     }
 }

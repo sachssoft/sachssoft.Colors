@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="sachssoft.Avalonia.Colors.Samples.Views.TransformersView">
+	<Grid RowDefinitions="Auto,*"
+		  ColumnDefinitions="Auto,Auto,*"
+		  Margin="10">
+		<StackPanel Grid.Row="0"
+					Grid.Column="0"
+					Spacing="10"
+					Margin="0 0 20 0"
+					Orientation="Vertical"
+					HorizontalAlignment="Left">
+			<Label Content="Image:" />
+			<ComboBox Width="200"
+					  x:Name="ImageSelector">
+			</ComboBox>
+			<Label Content="Transformer:" />
+			<ComboBox Width="200"
+					  x:Name="TransformerSelector"/>
+		</StackPanel>
+		<StackPanel Grid.Row="0"
+					Grid.Column="1"
+					Spacing="10"
+					Orientation="Vertical"
+					HorizontalAlignment="Left">
+			<Label Content="Amount:" />
+			<Slider Width="200"
+					Minimum="0"
+					Maximum="1"
+					Value="0"
+					SmallChange="0.1"
+					LargeChange="0.2"
+					TickFrequency="0.1"
+					IsSnapToTickEnabled="True"
+					x:Name="AmountSlider"/>
+			<Label Content="Factor:" />
+			<Slider Width="200"					
+					Minimum="0"
+					Maximum="1"
+					Value="0"
+					SmallChange="0.1"
+					LargeChange="0.2"
+					TickFrequency="0.1"
+					IsSnapToTickEnabled="True"
+					x:Name="FactorSlider"
+					/>
+		</StackPanel>
+		<Image x:Name="ExampleImage" 
+			   Grid.Row="1"
+			   Grid.ColumnSpan="3"
+			   Grid.Column="0"
+			   Stretch="None"/>
+	</Grid>
+</UserControl>

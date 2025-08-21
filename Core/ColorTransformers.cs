@@ -2,7 +2,7 @@
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors.Transformers;
+namespace Sachssoft.Sasogine.Graphics.Colors.Transformers;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors.Transformers;
@@ -25,6 +25,7 @@ using Color = sachssoft.Colors.ColorCode;
 #endif
 
 // OK
+[Obsolete("Use TransparencyColorTransformer instead")]
 public sealed class OpacityColorTransformer : IColorTransformer
 {
     // 0 = Normal
@@ -46,6 +47,27 @@ public sealed class OpacityColorTransformer : IColorTransformer
     }
 }
 
+// OK
+public sealed class TransparencyColorTransformer : IColorTransformer
+{
+    // 0 = Normal
+    // 1 = Transparent
+
+    public Color Transform(Color color, ColorRange amount)
+    {
+        var channels = ColorUtils.AdaptFrom(color);
+
+        // Berechne den Alpha-Wert, indem du amount von 0 bis 1 skalierst und auf 255 umrechnest.
+        byte alpha = (byte)(255f * (1f - (float)amount));
+
+        return ColorUtils.AdaptTo(
+            channels[0],
+            channels[1],
+            channels[2],
+            alpha
+        );
+    }
+}
 
 // OK
 public sealed class BrightColorTransformer : IColorTransformer /*, IColorChannelTransformer*/

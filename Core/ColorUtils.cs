@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors;
+using Sachssoft.Sasogine.Graphics.Colors.Spaces;
+namespace Sachssoft.Sasogine.Graphics.Colors;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors;
@@ -25,76 +26,101 @@ namespace sachssoft.Colors;
 using Color = sachssoft.Colors.ColorCode;
 #endif
 
-internal static class ColorUtils
+public static class ColorUtils
 {
+    private static readonly Random _random = new Random();
+
+    public static Color Random()
+    {
+        return AdaptTo(
+            (byte)_random.Next(255), 
+            (byte)_random.Next(255), 
+            (byte)_random.Next(255), 
+            255);
+    }
+
+    public static Color Random(float min_brightness, float max_brightness)
+    {
+        if (min_brightness < 0f || max_brightness > 1f || min_brightness > max_brightness)
+            throw new ArgumentOutOfRangeException(nameof(min_brightness), "Brightness must be in [0..1] range and min <= max.");
+
+        var hue = new ColorRange(_random.NextSingle()); // Bereich [0..1]
+        var brightness = new ColorRange(min_brightness + _random.NextSingle() * (max_brightness - min_brightness));
+        var saturation = ColorRange.High; // volles Spektrum für satte Farben
+
+        var hsv = new Spaces.HSV(hue, saturation, brightness);
+        return hsv.ConvertTo();
+    }
+
+    // Ab hier Internals
 
 #if MONOGAME || SASOGINE
 
-    public static byte[] AdaptFrom(Color color)
+    internal static byte[] AdaptFrom(Color color)
     {
         return new byte[] { color.R, color.G, color.B, color.A };
     }
 
-    public static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
+    internal static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
     {
         return new Color(r, g, b, a);
     }
 
 #elif SKIA
 
-    public static byte[] AdaptFrom(Color color)
+    internal static byte[] AdaptFrom(Color color)
     {
         return new byte[] { color.Red, color.Green, color.Blue, color.Alpha };
     }
 
-    public static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
+    internal static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
     {
         return new Color(r, g, b, a);
     }
 
 #elif WPF || DRAWING || AVALONIA
 
-    public static byte[] AdaptFrom(Color color)
+    internal static byte[] AdaptFrom(Color color)
     {
         return new byte[] { color.R, color.G, color.B, color.A };
     }
 
-    public static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
+    internal static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
     {
         return Color.FromArgb(a, r, g, b);
     }
 
 #else
-    public static byte[] AdaptFrom(Color color)
+    internal static byte[] AdaptFrom(Color color)
     {
         return new byte[] { color.Red, color.Green, color.Blue, color.Alpha };
     }
 
-    public static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
+    internal static Color AdaptTo(byte r, byte g, byte b, byte a = 255)
     {
         return new Color(a, r, g, b);
     }
 
 #endif
 
-    public static byte Clamp(int value, int min = 0, int max = 255)
+    internal static byte Clamp(int value, int min = 0, int max = 255)
     {
         return (byte)Math.Min(max, Math.Max(min, value));
     }
 
-    public static byte Clamp(float value, float min = 0f, float max = 1f)
+    internal static byte Clamp(float value, float min = 0f, float max = 1f)
     {
         // Clamp den Wert zwischen min und max und skaliere ihn auf den Bereich [0, 255]
         return (byte)Math.Round(Math.Min(max, Math.Max(min, value)) * 255f);
     }
 
-    public static byte Clamp(double value, double min = 0.0, double max = 1.0)
+    internal static byte Clamp(double value, double min = 0.0, double max = 1.0)
     {
         // Clamp den Wert zwischen min und max und skaliere ihn auf den Bereich [0, 255]
         return (byte)Math.Round(Math.Min(max, Math.Max(min, value)) * 255.0);
     }
 
-    public static float[] AdaptToSingleFrom(Color color, bool alpha = false)
+    internal static float[] AdaptToSingleFrom(Color color, bool alpha = false)
     {
         // Channels holen (entsprechend der Plattform)
         var channels = AdaptFrom(color);
@@ -116,7 +142,7 @@ internal static class ColorUtils
         return result.ToArray();
     }
 
-    public static double[] AdaptToDoubleFrom(Color color, bool alpha = false)
+    internal static double[] AdaptToDoubleFrom(Color color, bool alpha = false)
     {
         // Channels holen (entsprechend der Plattform)
         var channels = AdaptFrom(color);
@@ -138,7 +164,7 @@ internal static class ColorUtils
         return result.ToArray();
     }
 
-    public static Color AdaptFromSingleTo(float r, float g, float b, float a = 1f)
+    internal static Color AdaptFromSingleTo(float r, float g, float b, float a = 1f)
     {
         // Clamp the float values to the range of 0 to 1
         r = Clamp(r, 0f, 1f);
@@ -156,7 +182,7 @@ internal static class ColorUtils
         return AdaptTo(red, green, blue, alpha);
     }
 
-    public static Color AdaptFromDoubleTo(double r, double g, double b, double a = 1.0)
+    internal static Color AdaptFromDoubleTo(double r, double g, double b, double a = 1.0)
     {
         // Clamp the float values to the range of 0 to 1
         r = Clamp(r, 0f, 1f);

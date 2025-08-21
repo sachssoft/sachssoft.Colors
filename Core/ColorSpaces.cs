@@ -2,7 +2,7 @@
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors.Spaces;
+namespace Sachssoft.Sasogine.Graphics.Colors.Spaces;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors.Spaces;
@@ -1109,7 +1109,7 @@ public struct IPT : IColorSpace
         {
             new ColorComponent("Intensity", "I", I, 100.0, "0.0", "%"),
             new ColorComponent("Protan", "P", P, 100.0, "0.0", ""),
-            new ColorComponent("Tritan", "T", T, 100.0, "0.0", "")
+            new ColorComponent("Tritan", "TTile", T, 100.0, "0.0", "")
         };
     }
 }

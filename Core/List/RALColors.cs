@@ -2,7 +2,7 @@
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors.List;
+namespace Sachssoft.Sasogine.Graphics.Colors.List;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors.List;

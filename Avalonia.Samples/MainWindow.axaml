@@ -1,0 +1,46 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800"
+		xmlns:views="using:sachssoft.Avalonia.Colors.Samples.Views"
+        x:Class="sachssoft.Avalonia.Colors.Samples.MainWindow"
+        Title="sachssoft Color Samples">
+
+	<Grid ColumnDefinitions="250,5,*">
+		<TreeView Grid.Column="0"
+				  Grid.Row="1"
+				  x:Name="ViewSelector"
+				  SelectedItem="{Binding ElementName=FirstItem}">
+			<TreeView.Styles>
+				<Style Selector="TreeViewItem">
+					<Setter Property="IsExpanded" Value="True" />
+				</Style>
+			</TreeView.Styles>
+			<TreeViewItem Header="Transformers"
+						  x:Name="FirstItem">
+				<TreeViewItem.DataContext>
+					<views:TransformersView />
+				</TreeViewItem.DataContext>
+			</TreeViewItem>
+			<TreeViewItem Header="Blenders">
+				<TreeViewItem.DataContext>
+					<views:BlendersView />
+				</TreeViewItem.DataContext>
+			</TreeViewItem>
+			<TreeViewItem Header="Color Lists">
+				<TreeViewItem.DataContext>
+					<views:ColorListView />
+				</TreeViewItem.DataContext>
+			</TreeViewItem>
+		</TreeView>
+
+		<GridSplitter Grid.Column="1"
+					  ResizeDirection="Columns"
+					  Background="#202020"/>
+
+		<ScrollViewer Grid.Column="2"
+					  x:Name="ContentViewer"/>
+
+	</Grid>
+</Window>

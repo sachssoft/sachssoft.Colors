@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors;
+namespace Sachssoft.Sasogine.Graphics.Colors;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors;
@@ -30,6 +30,9 @@ public struct ColorRange
 {
     public const float MinValue = 0.0f;
     public const float MaxValue = 1.0f;
+
+    public static readonly ColorRange Low = new ColorRange(0f);
+    public static readonly ColorRange High = new ColorRange(1f);
 
     private float _value;
 

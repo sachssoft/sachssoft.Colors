@@ -2,7 +2,7 @@
 
 #if SASOGINE
 using Microsoft.Xna.Framework;
-namespace sachssoft.Sasogine.Graphics.Colors.Blenders;
+namespace Sachssoft.Sasogine.Graphics.Colors.Blenders;
 #elif MONOGAME
 using Microsoft.Xna.Framework;
 namespace sachssoft.Monogame.Colors.Blenders;
@@ -27,7 +27,7 @@ using Color = sachssoft.Colors.ColorCode;
 // OK
 public sealed class MixColorBlender : IColorBlender
 {
-    // = Lerp, Tint
+    // Mix und Lerp gleich, aber Alpha wird bei Lerp nicht berücksichtigt
     public Color Blend(Color c1, Color c2, ColorRange amount)
     {
         // Konvertiere beide Farben in die gleiche Farbrepräsentation (z. B. RGBA)
@@ -39,6 +39,27 @@ public sealed class MixColorBlender : IColorBlender
         byte g = ColorUtils.Clamp((int)(a1[1] + (a2[1] - a1[1]) * (float)amount));
         byte b = ColorUtils.Clamp((int)(a1[2] + (a2[2] - a1[2]) * (float)amount));
         byte a = (byte)(a1[3] + (a2[3] - a1[3]) * (float)amount); // Auch Alpha-Wert berücksichtigen
+
+        // Konvertiere zurück und gebe das Ergebnis zurück
+        return ColorUtils.AdaptTo(r, g, b, a);
+    }
+}
+
+// OK
+public sealed class LerpColorBlender : IColorBlender
+{
+    // Mix und Lerp gleich, aber Alpha wird bei Lerp nicht berücksichtigt
+    public Color Blend(Color c1, Color c2, ColorRange amount)
+    {
+        // Konvertiere beide Farben in die gleiche Farbrepräsentation (z. B. RGBA)
+        var a1 = ColorUtils.AdaptFrom(c1);
+        var a2 = ColorUtils.AdaptFrom(c2);
+
+        // Berechne die Mischung der Farbkomponenten (r, g, b) unter Berücksichtigung des "amount"
+        byte r = ColorUtils.Clamp((int)(a1[0] + (a2[0] - a1[0]) * (float)amount));
+        byte g = ColorUtils.Clamp((int)(a1[1] + (a2[1] - a1[1]) * (float)amount));
+        byte b = ColorUtils.Clamp((int)(a1[2] + (a2[2] - a1[2]) * (float)amount));
+        byte a = a1[3];
 
         // Konvertiere zurück und gebe das Ergebnis zurück
         return ColorUtils.AdaptTo(r, g, b, a);
